@@ -28,30 +28,73 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            /* 關鍵優化 2：改用 dvh (Dynamic Viewport Height)，自動扣除 iOS Safari 或 Chrome 的網址列與工具列 */
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* 讓 header、主體、控制區自動均分垂直空間 */
+            justify-content: space-between;
             align-items: center;
             overflow: hidden;
-            padding: 70px 16px 12px 16px; /* 為上下與左右保留安全邊距 */
+            padding: 76px 16px 12px 16px;
         }
 
         header {
             position: absolute;
-            top: 20px;
+            top: 16px;
             width: 100%;
-            padding: 0 20px;
+            padding: 0 16px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
             z-index: 10;
         }
 
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+        }
+
+        /* 自動生成下拉選單樣式 */
+        .course-select {
+            background: #1e1e1e;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 6px 28px 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+            flex-grow: 1;
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0a0a0'><path d='M4 6l4 4 4-4z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+        .course-select:focus { border-color: var(--accent-good); }
+
+        .reset-storage-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #888;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .reset-storage-btn:hover { color: var(--accent-again); border-color: var(--accent-again); }
+
         .progress-container {
             flex-grow: 1;
-            max-width: 200px; /* 手機端縮短進度條，避免擠壓到重置按鈕 */
+            max-width: 70%;
             background: #2a2a2a;
             height: 6px;
             border-radius: 3px;
@@ -70,15 +113,17 @@
             font-size: 0.8rem;
             color: var(--text-sub);
             min-width: 50px;
+            white-space: nowrap;
         }
 
         .status-tag {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #69f0ae;
             border: 1px solid #2a4a3a;
-            padding: 4px 10px;
-            border-radius: 15px;
+            padding: 3px 8px;
+            border-radius: 12px;
             background: rgba(105, 240, 174, 0.05);
+            white-space: nowrap;
         }
 
         #learning-stage {
@@ -87,18 +132,17 @@
             align-items: center;
             width: 100%;
             flex-grow: 1;
-            justify-content: center; /* 確保主體永遠在幾何中心 */
+            justify-content: center;
             gap: 12px;
-            min-height: 0; /* 阻止 Flex 子元件撐破外部容器 */
+            min-height: 0;
         }
 
         .stage {
             perspective: 1000px;
             width: 100%;
-            max-width: 480px; 
-            /* 關鍵優化 3：不再寫死 730px。高度隨螢幕動態計算，最高不超過螢幕剩餘空間的 64%，最低保底 380px */
-            height: 64vh; 
-            max-height: 600px;
+            max-width: 480px;
+            height: 62vh; 
+            max-height: 580px;
             min-height: 380px;
             cursor: pointer;
         }
@@ -134,11 +178,11 @@
         }
 
         .card-front .word {
-            /* 關鍵優化 4：使用 clamp 讓字體自適應，大螢幕維持大字，小螢幕（如 iPhone SE）自動縮小，絕不爆開 */
-            font-size: clamp(2.2rem, 8vw, 3.2rem);
+            font-size: clamp(2.0rem, 7.5vw, 3.2rem);
             font-weight: 700;
             letter-spacing: -0.5px;
             text-align: center;
+            line-height: 1.2;
         }
 
         .card-front .hint {
@@ -158,7 +202,6 @@
             padding: 0 !important;
         }
 
-        /* 16:9 黃金滿版圖片 */
         .card-image-bg {
             width: 100% !important;
             aspect-ratio: 16 / 9 !important;
@@ -169,10 +212,9 @@
             pointer-events: none;
             background-color: #0d0d0d;
             border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0; /* 確保圖片不被 Flex 壓縮 */
+            flex-shrink: 0;
         }
 
-        /* 關鍵優化 5：下方獨立拉動文字區，加強手機端滾動手感 */
         .card-back-content {
             width: 100%;
             flex-grow: 1;
@@ -182,7 +224,7 @@
             padding: 16px 20px;
             text-align: left;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* 讓 iOS 滑動具備物理滑順感 */
+            -webkit-overflow-scrolling: touch;
         }
 
         .card-back-content::-webkit-scrollbar { width: 4px; }
@@ -193,11 +235,11 @@
             display: flex;
             align-items: baseline;
             margin-bottom: 2px;
-            flex-wrap: wrap; /* 超長單字或複合詞自動換行 */
+            flex-wrap: wrap;
         }
 
         .word-title {
-            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-size: clamp(1.4rem, 5vw, 2rem);
             font-weight: 700;
             margin-right: 8px;
             color: #ffffff;
@@ -312,7 +354,7 @@
             width: 100%;
             max-width: 480px;
             flex-shrink: 0;
-            padding-bottom: 8px; /* 關鍵優化 6：留白防止被手機底部黑條阻擋 */
+            padding-bottom: 8px;
         }
 
         .controls.visible { opacity: 1; pointer-events: auto; }
@@ -344,24 +386,8 @@
         .message-screen { text-align: center; max-width: 100%; padding: 0 20px; margin-top: 80px; }
         .message-screen h2 { font-size: 1.6rem; margin-bottom: 12px; font-weight: 600; }
         .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
-        .stats-list { background: #1a1a1a; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; text-align: left; }
-        .stats-item { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
         .hidden { display: none !important; }
         
-        .reset-storage-btn {
-            background: transparent;
-            border: 1px solid #444;
-            color: #888;
-            padding: 4px 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-        .reset-storage-btn:hover { color: var(--accent-again); border-color: var(--accent-again); }
-        
-        /* 破關重置按鈕樣式修正 */
         .file-upload-btn {
             background: #222;
             border: 1px solid var(--border-color);
@@ -378,15 +404,18 @@
 <body>
 
     <header>
-        <div style="display: flex; align-items: center; flex-grow: 1; max-width: 70%;">
+        <div class="header-top-row">
+            <select class="course-select" id="course-selector" onchange="switchCourse(this.value)">
+                <option value="">⏳ 正在解構雲端總目錄...</option>
+            </select>
+            <button class="reset-storage-btn" onclick="clearProgressData()">重置本課記憶</button>
+        </div>
+        <div class="header-bottom-row" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
             <div class="progress-container">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
             <span class="counter" id="counter">0 / 0</span>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
-            <button class="reset-storage-btn" onclick="clearProgressData()" title="將所有記憶進度歸零、重新洗牌">重置記憶</button>
-            <span class="status-tag">同步中</span>
+            <span class="status-tag" id="engine-status">讀取中</span>
         </div>
     </header>
 
@@ -394,7 +423,7 @@
         <div class="stage" id="card-stage">
             <div class="card" id="flashcard">
                 <div class="card-face card-front">
-                    <div class="word" id="front-word">-</div>
+                    <div class="word" id="front-word">等待選單初始化...</div>
                     <div class="hint">點擊卡片翻面</div>
                 </div>
                 <div class="card-face card-back">
@@ -406,10 +435,10 @@
                         </div>
                         <div class="translation" id="back-translation">-</div>
                         
-                        <div class="section-title">【詞性變化】</div>
+                        <div class="section-title">【核心衍伸 / 結構解構】</div>
                         <div class="section-text" id="back-inflection">-</div>
                         
-                        <div class="section-title">【搭配詞】</div>
+                        <div class="section-title">【專業搭配詞 / 語境連結】</div>
                         <div class="section-text" id="back-collocation">-</div>
                         
                         <div class="example-header">
@@ -447,29 +476,21 @@
     </div>
 
     <div id="completion-screen" class="message-screen hidden">
-        <h2>思維沉澱，破關完成</h2>
-        <p>這批精選詞彙已悉數內化。點擊下方可重頭複習。</p>
+        <h2>思維沉澱，當前試算表已破關</h2>
+        <p>此範疇之詞彙已悉數內化。點擊下方可重頭複習。</p>
         <button class="file-upload-btn" onclick="resetEngine()">重頭學習</button>
     </div>
 
     <script>
-        const STATIC_VOCABULARY_DATABASE = [
-            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。" },
-            { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。" },
-            { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。" },
-            { word: "beautiful", type: "adj.", translation: "美麗的", inflection: "beautify (v.) 美化", collocation: "a beautiful scene 美麗的畫面", example_en: "The 16-bit retro style has a beautiful view.", example_ch: "16-bit 復古風格有著美麗的景致。" },
-            { word: "believe", type: "v.", translation: "相信；信任", inflection: "belief (n.) 信仰；信任", collocation: "believe in God 相信上帝", example_en: "Do you believe in the overlapping realities?", example_ch: "你相信交錯的現實嗎？" },
-            { word: "correct", type: "adj.", translation: "正確的", inflection: "correction (n.) 修改；糾正", collocation: "correct answer 正確答案", example_en: "Please ensure the diagnostic data is correct.", example_ch: "請確保診斷數據是正確的。" },
-            { word: "define", type: "v.", translation: "定義；界定", inflection: "definition (n.) 定義", collocation: "define the rules 定義規則", example_en: "We must define the new protocols for the system.", example_ch: "我們必須為系統定義新的協定。" },
-            { word: "different", type: "adj.", translation: "不同的", inflection: "difference (n.) 差異；不同", collocation: "be different from 與…不同", example_en: "They hold two entirely different views.", example_ch: "他們持有兩種截然不同的觀點。" },
-            { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。" },
-            { word: "experience", type: "n.", translation: "經驗；經歷", inflection: "experienced (adj.) 有經驗的", collocation: "work experience 工作經驗", example_en: "The journey was a profound experience for him.", example_ch: "這次旅程對他而言是一次深刻的經歷。" }
-        ];
+        // 💡 【核心重構】：填入你的「課程總目錄」試算表發布的 CSV 網址
+        const MASTER_INDEX_URL = "https://docs.google.com/spreadsheets/d/1Tz4x82TbVcB-H9rzbxf9-26HSI1cGN9iKpiRrT2kmZo/export?format=csv";
 
-        let originalCards = [...STATIC_VOCABULARY_DATABASE];
+        let COURSES_MAP = {}; // 儲存從總目錄解析出的 { 索引編號: CSV網址 }
+        let originalCards = [];
         let queue = [];
         let currentCard = null;
         let isFlipped = false;
+        let currentCourseKey = "";
         
         const synth = window.speechSynthesis;
         let recognition = null;
@@ -495,6 +516,7 @@
         const controls = document.getElementById('controls');
         const progressBar = document.getElementById('progress-bar');
         const counter = document.getElementById('counter');
+        const statusTag = document.getElementById('engine-status');
 
         document.getElementById('card-stage').addEventListener('click', (e) => {
             if (e.target.closest('#mic-button')) return;
@@ -519,26 +541,150 @@
             }
         });
 
+        // 啟動點：先抓總目錄，再加載課程
         window.addEventListener('DOMContentLoaded', () => {
-            initEngineWithCache();
+            fetchMasterIndex();
         });
 
-        function initEngineWithCache() {
-            const cachedQueue = localStorage.getItem('observer_srs_queue');
-            if (cachedQueue) {
-                queue = JSON.parse(cachedQueue);
-            } else {
-                queue = [...originalCards];
-            }
+        // 1. 抓取總目錄試算表並動態渲染下拉選單
+        function fetchMasterIndex() {
+            statusTag.textContent = "解構選單...";
+            fetch(MASTER_INDEX_URL)
+                .then(res => {
+                    if(!res.ok) throw new Error("總目錄讀取失敗");
+                    return res.text();
+                })
+                .then(csvText => {
+                    const rows = csvToObjects(csvText);
+                    const selector = document.getElementById('course-selector');
+                    selector.innerHTML = ''; // 清空加載字樣
+
+                    if(rows.length === 0) {
+                        selector.innerHTML = '<option>⚠️ 總目錄無資料</option>';
+                        return;
+                    }
+
+                    COURSES_MAP = {};
+                    rows.forEach((row, index) => {
+                        if(row.course_name && row.csv_url) {
+                            const key = `course_${index}`;
+                            COURSES_MAP[key] = row.csv_url.trim();
+
+                            const opt = document.createElement('option');
+                            opt.value = key;
+                            opt.textContent = row.course_name.trim();
+                            selector.appendChild(opt);
+                        }
+                    });
+
+                    // 讀取上次離開時的課程紀錄
+                    const savedKey = localStorage.getItem('observer_current_sheet_key');
+                    if (savedKey && COURSES_MAP[savedKey]) {
+                        currentCourseKey = savedKey;
+                        selector.value = savedKey;
+                    } else {
+                        currentCourseKey = Object.keys(COURSES_MAP)[0];
+                    }
+
+                    loadCourseData(currentCourseKey);
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusTag.textContent = "配置出錯";
+                    document.getElementById('front-word').textContent = "無法載入總目錄，請確認 MASTER_INDEX_URL 是否配置正確";
+                });
+        }
+
+        function switchCourse(courseKey) {
+            if(!courseKey || !COURSES_MAP[courseKey]) return;
+            synth.cancel();
+            if (isRecording && recognition) recognition.stop();
             
-            if (queue.length === 0) {
-                showCompletion();
-            } else {
-                learningStage.style.display = 'flex';
-                completionScreen.classList.add('hidden');
-                updateProgress();
-                showNextCard();
+            currentCourseKey = courseKey;
+            localStorage.setItem('observer_current_sheet_key', courseKey);
+            loadCourseData(courseKey);
+        }
+
+        // 2. 依據選單切換結果，動態二級抓取特定的課程字卡
+        function loadCourseData(courseKey) {
+            const targetUrl = COURSES_MAP[courseKey];
+            if(!targetUrl) return;
+
+            statusTag.textContent = "讀取課程...";
+            statusTag.style.color = "#ffd740";
+
+            fetch(targetUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("無法下載此課程內容");
+                    return response.text();
+                })
+                .then(csvText => {
+                    originalCards = csvToObjects(csvText);
+                    
+                    if(originalCards.length === 0) throw new Error("課程內容為空");
+
+                    // 記憶排程隔離：以網址雜湊作為各自獨立的記憶鎖
+                    const urlHash = btoa(targetUrl).substring(0, 16);
+                    const cacheKey = `observer_srs_queue_sheet_${urlHash}`;
+                    const cachedQueue = localStorage.getItem(cacheKey);
+
+                    if (cachedQueue) {
+                        queue = JSON.parse(cachedQueue);
+                        queue = queue.filter(qCard => originalCards.some(oCard => oCard.word === qCard.word));
+                        if(queue.length === 0) queue = [...originalCards];
+                    } else {
+                        queue = [...originalCards];
+                    }
+
+                    statusTag.textContent = "雲端已同步";
+                    statusTag.style.color = "#69f0ae";
+
+                    if (queue.length === 0) {
+                        showCompletion();
+                    } else {
+                        learningStage.style.display = 'flex';
+                        completionScreen.classList.add('hidden');
+                        updateProgress();
+                        showNextCard();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusTag.textContent = "加載失敗";
+                    statusTag.style.color = "#ff5252";
+                    document.getElementById('front-word').textContent = "此課程連線失敗，請檢查該子試算表發布狀態";
+                });
+        }
+
+        // CSV 自建剖析轉物件函數 (維持原封不動的高安全隔離)
+        function csvToObjects(csv) {
+            const lines = csv.split(/\r?\n/).filter(line => line.trim() !== "");
+            if (lines.length < 2) return [];
+            const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+            const result = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === 0) continue;
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index] ? values[index].trim() : "";
+                });
+                result.push(obj);
             }
+            return result;
+        }
+
+        function parseCSVLine(line) {
+            const arr = []; let quote = false; let col = "";
+            for (let c = 0; c < line.length; c++) {
+                let char = line[c];
+                if (char === '"') {
+                    if (quote && line[c+1] === '"') { col += '"'; c++; }
+                    else { quote = !quote; }
+                } else if (char === ',' && !quote) { arr.push(col); col = ""; } 
+                else { col += char; }
+            }
+            arr.push(col); return arr;
         }
 
         function showNextCard() {
@@ -551,12 +697,12 @@
             currentCard = queue[0];
             document.getElementById('front-word').textContent = currentCard.word;
             document.getElementById('back-word').textContent = currentCard.word;
-            document.getElementById('back-type').textContent = currentCard.type;
-            document.getElementById('back-translation').textContent = currentCard.translation;
-            document.getElementById('back-inflection').textContent = currentCard.inflection;
-            document.getElementById('back-collocation').textContent = currentCard.collocation;
-            document.getElementById('back-example-en').textContent = currentCard.example_en;
-            document.getElementById('back-example-ch').textContent = currentCard.example_ch;
+            document.getElementById('back-type').textContent = currentCard.type || '';
+            document.getElementById('back-translation').textContent = currentCard.translation || '';
+            document.getElementById('back-inflection').textContent = currentCard.inflection || '無';
+            document.getElementById('back-collocation').textContent = currentCard.collocation || '無';
+            document.getElementById('back-example-en').textContent = currentCard.example_en || '';
+            document.getElementById('back-example-ch').textContent = currentCard.example_ch || '';
 
             document.querySelector('.card-back-content').scrollTop = 0;
             updateCardImage(currentCard.word);
@@ -572,19 +718,23 @@
         }
 
         function speakCard() {
-            synth.cancel(); 
+            if(!currentCard.word) return;
+            synth.cancel();
             const utterWord1 = new SpeechSynthesisUtterance(currentCard.word);
             utterWord1.lang = 'en-US'; utterWord1.rate = 0.9;
             const utterWord2 = new SpeechSynthesisUtterance(currentCard.word);
-            utterWord2.lang = 'en-US'; utterWord2.rate = 0.82; 
-            const utterExample = new SpeechSynthesisUtterance(currentCard.example_en);
-            utterExample.lang = 'en-US'; utterExample.rate = 0.95;
-            synth.speak(utterWord1); synth.speak(utterWord2); synth.speak(utterExample);
+            utterWord2.lang = 'en-US'; utterWord2.rate = 0.82;
+            synth.speak(utterWord1); synth.speak(utterWord2);
+            if(currentCard.example_en) {
+                const utterExample = new SpeechSynthesisUtterance(currentCard.example_en);
+                utterExample.lang = 'en-US'; utterExample.rate = 0.95;
+                synth.speak(utterExample);
+            }
         }
 
         function handleSRS(level) {
             if (!isFlipped || isRecording) return;
-            const card = queue.shift(); 
+            const card = queue.shift();
 
             if (level === 'again') {
                 queue.splice(1, 0, card);
@@ -594,11 +744,12 @@
             } else if (level === 'good') {
                 const index = Math.max(1, Math.floor(queue.length * 0.8));
                 queue.splice(index, 0, card);
-            } else if (level === 'easy') {
-                // 移出排程
             }
 
-            localStorage.setItem('observer_srs_queue', JSON.stringify(queue));
+            const targetUrl = COURSES_MAP[currentCourseKey];
+            const urlHash = btoa(targetUrl).substring(0, 16);
+            const cacheKey = `observer_srs_queue_sheet_${urlHash}`;
+            localStorage.setItem(cacheKey, JSON.stringify(queue));
             updateProgress();
             showNextCard();
         }
@@ -614,12 +765,16 @@
         function showCompletion() {
             learningStage.style.display = 'none';
             completionScreen.classList.remove('hidden');
-            localStorage.removeItem('observer_srs_queue');
+            const targetUrl = COURSES_MAP[currentCourseKey];
+            const urlHash = btoa(targetUrl).substring(0, 16);
+            localStorage.removeItem(`observer_srs_queue_sheet_${urlHash}`);
         }
 
         function resetEngine() {
             queue = [...originalCards];
-            localStorage.setItem('observer_srs_queue', JSON.stringify(queue));
+            const targetUrl = COURSES_MAP[currentCourseKey];
+            const urlHash = btoa(targetUrl).substring(0, 16);
+            localStorage.setItem(`observer_srs_queue_sheet_${urlHash}`, JSON.stringify(queue));
             completionScreen.classList.add('hidden');
             learningStage.style.display = 'flex';
             updateProgress();
@@ -627,22 +782,28 @@
         }
 
         function clearProgressData() {
-            if(confirm("確定要將這批字卡的 SRS 熟練度排程全部歸零重置嗎？")) {
-                localStorage.removeItem('observer_srs_queue');
-                initEngineWithCache();
+            if(!currentCourseKey) return;
+            if(confirm("確定要將當前課程的記憶排程全部歸零重置嗎？")) {
+                const targetUrl = COURSES_MAP[currentCourseKey];
+                const urlHash = btoa(targetUrl).substring(0, 16);
+                localStorage.removeItem(`observer_srs_queue_sheet_${urlHash}`);
+                loadCourseData(currentCourseKey);
             }
         }
 
         function evaluateSpeech(userText) {
+            if(!currentCard.example_en) return;
             const cleanText = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").split(/\s+/).filter(Boolean);
             const targetWords = cleanText(currentCard.example_en);
             const userWords = cleanText(userText);
             let score = 10.0; const perWordValue = 10.0 / targetWords.length;
             const feedbackContainer = document.getElementById('visual-transcript');
             feedbackContainer.innerHTML = '';
+            
             let isSemanticInverted = false;
             const negativeParticles = ['no', 'not', 'dont', 'doesnt', 'didnt', 'cant', 'wont', 'never'];
             if (targetWords.some(w => negativeParticles.includes(w)) !== userWords.some(w => negativeParticles.includes(w))) isSemanticInverted = true;
+            
             let htmlOutput = []; let userIdx = 0;
             for (let i = 0; i < targetWords.length; i++) {
                 const target = targetWords[i]; const user = userWords[userIdx];
@@ -656,8 +817,12 @@
                 }
             }
             while(userIdx < userWords.length) { htmlOutput.push(`<span class="word-error" style="opacity: 0.6;" title="贅字">${userWords[userIdx]}</span>`); score -= (perWordValue * 0.3); userIdx++; }
-            if (isSemanticInverted) { score -= 3.5; document.getElementById('score-text').className = "score-display danger"; document.getElementById('ai-comment').innerHTML = "⚠️ <span style='color:#ff5252; font-weight:bold;'>語意反轉失誤！</span>"; } 
-            else {
+            
+            if (isSemanticInverted) { 
+                score -= 3.5; 
+                document.getElementById('score-text').className = "score-display danger"; 
+                document.getElementById('ai-comment').innerHTML = "⚠️ <span style='color:#ff5252; font-weight:bold;'>語意反轉失誤！</span>"; 
+            } else {
                 score = Math.max(0, Math.min(10, score));
                 const scoreTextEl = document.getElementById('score-text'); const aiCommentEl = document.getElementById('ai-comment');
                 if (score >= 9.0) { scoreTextEl.className = "score-display perfect"; aiCommentEl.textContent = "Excellent! 發音極其清晰。"; } 
@@ -668,7 +833,6 @@
             feedbackContainer.innerHTML = htmlOutput.join('');
             document.getElementById('feedback-panel').classList.remove('hidden');
             
-            // 關鍵調整：辨識完畢後，流暢滾動至最底，確保使用者在手機端第一時間看見 AI 回饋面板
             setTimeout(() => {
                 const contentArea = document.querySelector('.card-back-content');
                 contentArea.scrollTo({ top: contentArea.scrollHeight, behavior: 'smooth' });
@@ -683,13 +847,15 @@
         }
 
         function updateCardImage(word) {
-            const localSrc = `./${word.toLowerCase()}.jpg`;
+            if(!word) return;
+            const localSrc = `./${word.toLowerCase().replace(/\s+/g, '_')}.jpg`;
             document.getElementById('card-image').style.backgroundImage = `url('${localSrc}')`;
         }
 
         function preloadImage(word) {
+            if(!word) return;
             const img = new Image();
-            img.src = `./${word.toLowerCase()}.jpg`;
+            img.src = `./${word.toLowerCase().replace(/\s+/g, '_')}.jpg`;
         }
     </script>
 </body>
