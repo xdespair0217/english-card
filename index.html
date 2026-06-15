@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 科學記憶永久宮殿 — 深度觀察者</title>
-    <style>
+<style>
         :root {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
@@ -18,26 +12,31 @@
             --score-bg: #1a1a1a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            height: 100vh;
+            /* 關鍵修正：改用 dvh (dynamic viewport height)，動態扣除手機瀏覽器的網址列與工具列 */
+            height: 100dvh; 
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* 讓內容、卡片、按鈕呈現完美的垂直分佈 */
+            justify-content: space-between; /* 讓上下元件依據螢幕高度自動撐開分配 */
             align-items: center;
             overflow: hidden;
-            padding: 75px 12px 20px 12px; /* 為手機版預留左右安全邊距，底部留空給按鈕 */
+            padding: 70px 16px 20px 16px; /* 為上下保留安全邊距 */
         }
 
         header {
             position: absolute;
             top: 20px;
             width: 100%;
-            padding: 0 20px;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -46,18 +45,12 @@
 
         .progress-container {
             flex-grow: 1;
-            max-width: 180px; /* 手機版進度條稍微收斂，避免擠到按鈕 */
+            max-width: 240px; /* 手機版縮小進度條寬度 */
             background: #2a2a2a;
             height: 6px;
             border-radius: 3px;
             overflow: hidden;
-            margin-right: 12px;
-        }
-
-        @media (min-width: 768px) {
-            .progress-container { max-width: 350px; }
-            header { padding: 0 40px; top: 25px; }
-            body { padding-top: 90px; padding-bottom: 30px; justify-content: flex-start; }
+            margin-right: 15px;
         }
 
         .progress-bar {
@@ -67,471 +60,290 @@
             transition: width 0.3s ease;
         }
 
-        .counter { font-size: 0.8rem; color: var(--text-sub); min-width: 50px; }
-
-        .btn-group { display: flex; gap: 6px; align-items: center; }
-
-        .action-btn {
-            background: transparent;
-            border: 1px solid #444;
+        .counter {
+            font-size: 0.8rem;
             color: var(--text-sub);
+            min-width: 50px;
+        }
+
+        .status-tag {
+            font-size: 0.75rem;
+            color: #69f0ae;
+            border: 1px solid #2a4a3a;
             padding: 4px 10px;
             border-radius: 15px;
+            background: rgba(105, 240, 174, 0.05);
+        }
+
+        #learning-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            flex-grow: 1;
+            justify-content: center; /* 確保在手機畫面的幾何中心 */
+            gap: 15px;
+            min-height: 0; /* 阻止 Flex 子元件溢出 */
+        }
+
+        .stage {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 480px; 
+            /* 關鍵修正：不再寫死 730px，而是由系統依據螢幕剩餘高度動態計算，最高不超過螢幕的 65% */
+            height: 62vh; 
+            max-height: 650px;
+            min-height: 400px;
             cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.2s ease;
-        }
-        @media (min-width: 768px) {
-            .action-btn { padding: 5px 12px; font-size: 0.75rem; }
-            .btn-group { gap: 10px; }
-        }
-        .action-btn:hover { color: var(--text-main); border-color: var(--text-sub); }
-        .btn-export:hover { color: var(--accent-easy); border-color: var(--accent-easy); }
-
-        /* 🚀 核心優化： stage 使用 flex-grow 與 calc，不再寫死 730px 高度 */
-        .stage { 
-            perspective: 1000px; 
-            width: 100%; 
-            max-width: 620px; 
-            height: calc(100vh - 190px); /* 扣除頂部 header 與底部按鈕空間，動態計算剩餘高度 */
-            max-height: 700px; /* 電腦端最大上限 */
-            cursor: pointer; 
-            margin-bottom: 15px;
-        }
-        @media (min-width: 768px) {
-            .stage { height: 680px; margin-bottom: 25px; }
         }
 
-        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .card.flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
 
-        .card-front { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
-        .card-front .word { font-size: 3rem; font-weight: 700; letter-spacing: -0.5px; text-align: center; word-break: break-all; }
-        @media (min-width: 768px) { .card-front .word { font-size: 3.5rem; } }
-        .card-front .hint { position: absolute; bottom: 25px; font-size: 0.8rem; color: var(--text-sub); letter-spacing: 1px; }
-
-        .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
-        
-        /* 手機端縮小圖片佔比，避免壓迫到文字空間 */
-        .card-image-bg { 
-            width: 100% !important; 
-            height: 32%; /* 用百分比控管，不寫死固定高度 */
-            min-height: 140px;
-            opacity: 1.0; 
-            background-size: contain; 
-            background-repeat: no-repeat; 
-            background-position: center; 
-            pointer-events: none; 
-            background-color: #0d0d0d; 
-            border-bottom: 1px solid var(--border-color); 
-            flex-shrink: 0; 
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
-        @media (min-width: 768px) { .card-image-bg { height: auto; aspect-ratio: 16 / 9 !important; } }
 
-        .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 16px 20px; text-align: left; overflow-y: auto; }
-        @media (min-width: 768px) { .card-back-content { padding: 24px 30px; } }
-        .card-back-content::-webkit-scrollbar { width: 6px; }
-        .card-back-content::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .card-front {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
 
-        .word-meta { display: flex; align-items: baseline; margin-bottom: 2px; flex-wrap: wrap; }
-        .word-title { font-size: 1.8rem; font-weight: 700; margin-right: 10px; color: #ffffff; }
-        @media (min-width: 768px) { .word-title { font-size: 2.2rem; } }
-        .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
-        .translation { font-size: 1.15rem; margin-bottom: 10px; color: var(--accent-good); font-weight: 600; }
-        @media (min-width: 768px) { .translation { font-size: 1.3rem; margin-bottom: 14px; } }
+        .card-front .word {
+            /* 手機版字體微調，避免超長單字爆開 */
+            font-size: clamp(2.2rem, 8vw, 3.2rem); 
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
 
-        .section-title { font-size: 0.75rem; color: #ffb74d; margin-top: 6px; margin-bottom: 2px; letter-spacing: 0.5px; font-weight: bold; }
-        @media (min-width: 768px) { .section-title { font-size: 0.8rem; margin-top: 8px; } }
-        .section-text { font-size: 0.9rem; color: var(--text-main); margin-bottom: 4px; padding-left: 4px; white-space: pre-line; line-height: 1.4; }
-        @media (min-width: 768px) { .section-text { font-size: 0.95rem; margin-bottom: 6px; } }
+        .card-front .hint {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            letter-spacing: 1px;
+        }
 
-        .example-header { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-        .mic-btn { background: #252525; border: 1px solid #444; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; outline: none; }
+        .card-back {
+            transform: rotateY(180deg);
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 !important;
+        }
+
+        .card-image-bg {
+            width: 100% !important;
+            aspect-ratio: 16 / 9 !important;
+            opacity: 1.0;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            background-color: #0d0d0d;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        /* 下方獨立滾動文字區：在手機上此區域會自動收縮，並允許內部獨立滑動 */
+        .card-back-content {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 16px 20px;
+            text-align: left;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* 優化 iOS 滑動順暢度 */
+        }
+
+        .card-back-content::-webkit-scrollbar { width: 4px; }
+        .card-back-content::-webkit-scrollbar-track { background: transparent; }
+        .card-back-content::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
+        .word-meta {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 2px;
+            flex-wrap: wrap;
+        }
+
+        .word-title {
+            font-size: clamp(1.6rem, 5vw, 2rem);
+            font-weight: 700;
+            margin-right: 8px;
+            color: #ffffff;
+        }
+
+        .word-type {
+            font-style: italic;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        .translation {
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+            color: var(--accent-good);
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            color: #ffb74d;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .section-text {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            padding-left: 4px;
+            white-space: pre-line;
+            line-line-height: 1.4;
+        }
+
+        .example-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .mic-btn {
+            background: #252525;
+            border: 1px solid #444;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            outline: none;
+            flex-shrink: 0;
+        }
+        
         .mic-btn svg { width: 14px; height: 14px; fill: #69f0ae; }
-        @media (min-width: 768px) { .mic-btn { width: 36px; height: 36px; } .mic-btn svg { width: 16px; height: 16px; } }
         .mic-btn.recording { border-color: var(--accent-again); animation: pulse 1.2s infinite; }
-        .mic-btn.recording svg { fill: var(--accent-again); }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); } }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 82, 82, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
+        }
 
-        .example-block { margin-top: 4px; border-left: 2px solid #555; padding-left: 10px; width: 100%; }
+        .example-block {
+            margin-top: 4px;
+            border-left: 2px solid #555;
+            padding-left: 10px;
+            width: 100%;
+        }
+
         .example-en { font-size: 0.9rem; color: var(--text-main); line-height: 1.4; word-break: break-word; }
-        @media (min-width: 768px) { .example-en { font-size: 0.95rem; } }
         .example-ch { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; }
-        @media (min-width: 768px) { .example-ch { font-size: 0.85rem; margin-top: 4px; } }
 
-        .speech-feedback-panel { margin-top: 10px; background-color: var(--score-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; }
-        .feedback-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .speech-feedback-panel {
+            margin-top: 10px;
+            background-color: var(--score-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .feedback-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
         .score-display { font-size: 1.15rem; font-weight: 700; color: var(--accent-hard); }
         .score-display.perfect { color: var(--accent-easy); }
         .score-display.danger { color: var(--accent-again); }
-        .feedback-label { font-size: 0.7rem; color: var(--text-sub); letter-spacing: 0.5px; }
-        .user-transcript-box { font-size: 0.85rem; line-height: 1.4; color: var(--text-main); margin-bottom: 4px; }
+        .feedback-label { font-size: 0.7rem; color: var(--text-sub); }
+        .user-transcript-box { font-size: 0.85rem; line-height: 1.35; color: var(--text-main); margin-bottom: 4px; }
+
+        .word-correct { color: #69f0ae; margin-right: 4px; display: inline-block; }
+        .word-error { color: #ff5252; text-decoration: underline dashed #ff5252; margin-right: 4px; display: inline-block; }
+        .word-missed { color: #888888; text-decoration: line-through; margin-right: 4px; display: inline-block; }
         .ai-commentary { font-size: 0.75rem; color: var(--text-sub); font-style: italic; border-top: 1px solid #2a2a2a; padding-top: 4px; margin-top: 4px; }
 
-        /* 按鈕控制區優化：確保在手機版底部保持極佳的單手點擊手感 */
-        .controls { display: flex; gap: 8px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; width: 100%; max-width: 620px; flex-shrink: 0; }
+        .controls {
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            width: 100%;
+            max-width: 480px;
+            flex-shrink: 0;
+            padding-bottom: 10px; /* 防止被手機底部虛擬條遮擋 */
+        }
+
         .controls.visible { opacity: 1; pointer-events: auto; }
 
-        .btn { flex: 1; background: #222; border: 1px solid var(--border-color); padding: 10px 6px; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-main); font-weight: 500; font-size: 0.9rem; transition: all 0.2s ease; -webkit-tap-highlight-color: transparent; }
-        @media (min-width: 768px) { .btn { padding: 12px; font-size: 1rem; } .controls { gap: 15px; } }
-        .btn .num-tag { font-size: 0.65rem; opacity: 0.4; margin-top: 2px; }
+        .btn {
+            flex: 1;
+            background: #222;
+            border: 1px solid var(--border-color);
+            padding: 10px 4px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn .num-tag { font-size: 0.65rem; opacity: 0.3; margin-top: 2px; }
         .btn:hover { background: #2b2b2b; }
         .btn-again:hover { border-color: var(--accent-again); color: var(--accent-again); }
         .btn-hard:hover { border-color: var(--accent-hard); color: var(--accent-hard); }
         .btn-good:hover { border-color: var(--accent-good); color: var(--accent-good); }
         .btn-easy:hover { border-color: var(--accent-easy); color: var(--accent-easy); }
 
-        .message-screen { text-align: center; max-width: 450px; margin-top: 60px; padding: 20px; }
-        .message-screen h2 { font-size: 1.8rem; margin-bottom: 12px; font-weight: 600; }
-        .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
-        .file-upload-btn { background: #252525; border: 1px solid #444; color: var(--text-main); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .message-screen { text-align: center; max-width: 100%; padding: 0 20px; margin-top: 60px; }
+        .message-screen h2 { font-size: 1.6rem; margin-bottom: 12px; }
+        .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.5; }
         .hidden { display: none !important; }
         
-        #hidden-file-input { display: none; }
+        .reset-storage-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #888;
+            padding: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
     </style>
-</head>
-<body>
-
-    <header>
-        <div style="display: flex; align-items: center;">
-            <div class="progress-container">
-                <div class="progress-bar" id="progress-bar"></div>
-            </div>
-            <span class="counter" id="counter">0 / 0</span>
-        </div>
-        <div class="btn-group">
-            <button class="action-btn btn-export" onclick="exportProgressCSV()" title="將目前的記憶進度與單字打包下載成 CSV 帶走">導出</button>
-            <label class="action-btn" title="匯入包含新單字或是含有進度的任何 CSV 試算表">
-                導入
-                <input type="file" id="hidden-file-input" accept=".csv" onchange="importProgressCSV(event)">
-            </label>
-            <button class="action-btn" onclick="clearProgressData()" style="color:#ff5252;" title="歸零並還原回最原始內建的 8 組單字庫">還原</button>
-        </div>
-    </header>
-
-    <div id="learning-stage" style="display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: space-between;">
-        <div class="stage" id="card-stage" onclick="flipCard()">
-            <div class="card" id="flashcard">
-                <div class="card-face card-front">
-                    <div class="word" id="front-word">-</div>
-                    <div class="hint">點擊卡片翻面</div>
-                </div>
-                <div class="card-face card-back">
-                    <div class="card-image-bg" id="card-image"></div>
-                    <div class="card-back-content" onclick="event.stopPropagation();">
-                        <div class="word-meta">
-                            <span class="word-title" id="back-word">-</span>
-                            <span class="word-type" id="back-type">-</span>
-                        </div>
-                        <div class="translation" id="back-translation">-</div>
-                        
-                        <div class="section-title">【詞性變化】</div>
-                        <div class="section-text" id="back-inflection">-</div>
-                        
-                        <div class="section-title">【搭配詞】</div>
-                        <div class="section-text" id="back-collocation">-</div>
-                        
-                        <div class="example-header">
-                            <div class="section-title">【例句口說挑戰】</div>
-                            <button class="mic-btn" id="mic-button" title="開始口說辨識">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="example-block">
-                            <div class="example-en" id="back-example-en">-</div>
-                            <div class="example-ch" id="back-example-ch">-</div>
-                        </div>
-
-                        <div class="speech-feedback-panel hidden" id="feedback-panel">
-                            <div class="feedback-top">
-                                <span class="feedback-label">AI 口說分析回饋</span>
-                                <span class="score-display" id="score-text">0.0 / 10分</span>
-                            </div>
-                            <div class="user-transcript-box" id="visual-transcript"></div>
-                            <div class="ai-commentary" id="ai-comment">-</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="controls" id="controls">
-            <button class="btn btn-again" onclick="handleSRS('again')">Again<span class="num-tag">①</span></button>
-            <button class="btn btn-hard" onclick="handleSRS('hard')">Hard<span class="num-tag">②</span></button>
-            <button class="btn btn-good" onclick="handleSRS('good')">Good<span class="num-tag">③</span></button>
-            <button class="btn btn-easy" onclick="handleSRS('easy')">Easy<span class="num-tag">④</span></button>
-        </div>
-    </div>
-
-    <div id="completion-screen" class="message-screen hidden">
-        <h2>思維沉澱，破關完成</h2>
-        <p>當前序列已順利完成內化。</p>
-        <button class="file-upload-btn" onclick="resetEngine()">重頭學習</button>
-    </div>
-
-    <script>
-        const DEFAULT_INTERNAL_DATABASE = [
-            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 },
-            { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。", historyCount: 0 },
-            { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。", historyCount: 0 },
-            { word: "beautiful", type: "adj.", translation: "美麗的", inflection: "beautify (v.) 美化", collocation: "a beautiful scene 美麗的畫面", example_en: "The 16-bit retro style has a beautiful view.", example_ch: "16-bit 復古風格有著美麗的景致。", historyCount: 0 },
-            { word: "correct", type: "adj.", translation: "正確的", inflection: "correction (n.) 修改；糾正", collocation: "correct answer 正確答案", example_en: "Please ensure the diagnostic data is correct.", example_ch: "請確保診斷數據是正確的。", historyCount: 0 },
-            { word: "define", type: "v.", translation: "定義；界定", inflection: "definition (n.) 定義", collocation: "define the rules 定義規則", example_en: "We must define the new protocols for the system.", example_ch: "我們必須為系統定義新的協定。", historyCount: 0 },
-            { word: "different", type: "adj.", translation: "不同的", inflection: "difference (n.) 差異；不同", collocation: "be different from 與…不同", example_en: "They hold two entirely different views.", example_ch: "他們持有兩種截然不同的觀點。", historyCount: 0 },
-            { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。", historyCount: 0 }
-        ];
-
-        let originalCards = [];
-        let queue = [];
-        let currentCard = null;
-        let isFlipped = false;
-        
-        const synth = window.speechSynthesis;
-        let recognition = null;
-        let isRecording = false;
-
-        const learningStage = document.getElementById('learning-stage');
-        const completionScreen = document.getElementById('completion-screen');
-        const flashcard = document.getElementById('flashcard');
-        const controls = document.getElementById('controls');
-        const progressBar = document.getElementById('progress-bar');
-        const counter = document.getElementById('counter');
-
-        try {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new SpeechRecognition();
-                recognition.continuous = false; recognition.interimResults = false; recognition.lang = 'en-US';
-                
-                recognition.onstart = () => { isRecording = true; document.getElementById('mic-button').classList.add('recording'); };
-                recognition.onend = () => { isRecording = false; document.getElementById('mic-button').classList.remove('recording'); };
-                recognition.onresult = (event) => { evaluateSpeech(event.results[0][0].transcript); };
-                recognition.onerror = () => { isRecording = false; document.getElementById('mic-button').classList.remove('recording'); };
-            }
-        } catch (e) { console.error(e); }
-
-        window.addEventListener('DOMContentLoaded', () => { 
-            initEngineWithCache(); 
-            // 綁定麥克風點擊，防止觸發卡片點擊事件
-            document.getElementById('mic-button').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleRecording();
-            });
-            // 鍵盤支援維持不變
-            window.addEventListener('keydown', (e) => {
-                if (e.code === 'Space') { e.preventDefault(); flipCard(); }
-                if (isFlipped && !isRecording) {
-                    if (e.key === '1') handleSRS('again');
-                    if (e.key === '2') handleSRS('hard');
-                    if (e.key === '3') handleSRS('good');
-                    if (e.key === '4') handleSRS('easy');
-                }
-            });
-        });
-
-        function toggleRecording() {
-            if (!recognition) { alert("此裝置或瀏覽器不支援語音辨識功能。"); return; }
-            if (isRecording) { recognition.stop(); } else { recognition.start(); }
-        }
-
-        function initEngineWithCache() {
-            const cachedQueue = localStorage.getItem('hybrid_srs_queue');
-            const cachedOriginal = localStorage.getItem('hybrid_srs_original');
-            
-            if (cachedQueue && cachedOriginal) {
-                queue = JSON.parse(cachedQueue);
-                originalCards = JSON.parse(cachedOriginal);
-            } else {
-                originalCards = JSON.parse(JSON.stringify(DEFAULT_INTERNAL_DATABASE));
-                queue = [...originalCards];
-            }
-            
-            if (queue.length === 0) { showCompletion(); } 
-            else {
-                learningStage.classList.remove('hidden');
-                completionScreen.classList.add('hidden');
-                updateProgress();
-                showNextCard();
-            }
-        }
-
-        function showNextCard() {
-            if (queue.length === 0) { showCompletion(); return; }
-            isFlipped = false; flashcard.classList.remove('flipped'); controls.classList.remove('visible');
-            document.getElementById('feedback-panel').classList.add('hidden');
-
-            currentCard = queue[0];
-            document.getElementById('front-word').textContent = currentCard.word;
-            document.getElementById('back-word').textContent = currentCard.word;
-            document.getElementById('back-type').textContent = currentCard.type;
-            document.getElementById('back-translation').textContent = currentCard.translation;
-            document.getElementById('back-inflection').textContent = currentCard.inflection;
-            document.getElementById('back-collocation').textContent = currentCard.collocation;
-            document.getElementById('back-example-en').textContent = currentCard.example_en;
-            document.getElementById('back-example-ch').textContent = currentCard.example_ch;
-
-            document.querySelector('.card-back-content').scrollTop = 0;
-            updateCardImage(currentCard.word);
-        }
-
-        function flipCard() {
-            if (isFlipped || !currentCard) return;
-            isFlipped = true; flashcard.classList.add('flipped'); controls.classList.add('visible');
-            speakCard();
-        }
-
-        function speakCard() {
-            try {
-                synth.cancel(); 
-                const utterWord1 = new SpeechSynthesisUtterance(currentCard.word); utterWord1.lang = 'en-US'; utterWord1.rate = 0.9;
-                const utterExample = new SpeechSynthesisUtterance(currentCard.example_en); utterExample.lang = 'en-US'; utterExample.rate = 0.95;
-                synth.speak(utterWord1); synth.speak(utterExample);
-            } catch(e) { console.log("TTS語音播放受阻，需要使用者互動觸發"); }
-        }
-
-        function handleSRS(level) {
-            if (!isFlipped || isRecording) return;
-            const card = queue.shift(); 
-
-            if (level === 'again') { card.historyCount += 1; queue.splice(1, 0, card); } 
-            else if (level === 'hard') { card.historyCount += 0.5; const idx = Math.max(2, Math.floor(queue.length / 3)); queue.splice(idx, 0, card); } 
-            else if (level === 'good') { card.historyCount -= 0.2; const idx = Math.max(1, Math.floor(queue.length * 0.8)); queue.splice(idx, 0, card); } 
-            else if (level === 'easy') {
-                const master = originalCards.find(c => c.word === card.word);
-                if(master) master.historyCount = 99; 
-            }
-
-            localStorage.setItem('hybrid_srs_queue', JSON.stringify(queue));
-            localStorage.setItem('hybrid_srs_original', JSON.stringify(originalCards));
-
-            updateProgress();
-            showNextCard();
-        }
-
-        function exportProgressCSV() {
-            let csvContent = "\uFEFFword,type,translation,inflection,collocation,example_en,example_ch,historyCount\n";
-            originalCards.forEach(c => {
-                let row = [c.word, c.type, c.translation, c.inflection, c.collocation.replace(/\n/g, '\\n'), c.example_en, c.example_ch, c.historyCount || 0];
-                let escapedRow = row.map(v => `"${String(v).replace(/"/g, '""')}"`);
-                csvContent += escapedRow.join(",") + "\n";
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `observer_database_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
-
-        function importProgressCSV(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const lines = evt.target.result.replace(/\r/g, '').split('\n');
-                let importedData = [];
-                for (let i = 1; i < lines.length; i++) {
-                    let line = lines[i].trim(); if (!line) continue;
-                    let row = [], inQuotes = false, currentField = '';
-                    for (let j = 0; j < line.length; j++) {
-                        let char = line[j];
-                        if (char === '"') inQuotes = !inQuotes;
-                        else if (char === ',' && !inQuotes) { row.push(currentField.trim()); currentField = ''; }
-                        else currentField += char;
-                    }
-                    row.push(currentField.trim());
-                    if (row.length >= 7) {
-                        importedData.push({
-                            word: row[0], type: row[1], translation: row[2], inflection: row[3],
-                            collocation: row[4].replace(/\\n/g, '\n'), example_en: row[5], example_ch: row[6],
-                            historyCount: row[7] ? parseFloat(row[7]) : 0
-                        });
-                    }
-                }
-                if(importedData.length > 0) {
-                    originalCards = importedData;
-                    queue = originalCards.filter(c => c.historyCount < 99);
-                    localStorage.setItem('hybrid_srs_queue', JSON.stringify(queue));
-                    localStorage.setItem('hybrid_srs_original', JSON.stringify(originalCards));
-                    alert("🎯 成功注入全新學習內容！");
-                    initEngineWithCache();
-                }
-            };
-            reader.readAsText(file, 'UTF-8');
-        }
-
-        function updateProgress() {
-            const total = originalCards.length;
-            const currentLeft = queue.length;
-            progressBar.style.width = `${total > 0 ? ((total - currentLeft) / total) * 100 : 0}%`;
-            counter.textContent = `${currentLeft} / ${total}`;
-        }
-
-        function showCompletion() { learningStage.classList.add('hidden'); completionScreen.classList.remove('hidden'); localStorage.removeItem('hybrid_srs_queue'); }
-        
-        function resetEngine() { 
-            queue = originalCards.map(c => { if(c.historyCount == 99) c.historyCount = 0; return c; });
-            localStorage.setItem('hybrid_srs_queue', JSON.stringify(queue));
-            localStorage.setItem('hybrid_srs_original', JSON.stringify(originalCards));
-            initEngineWithCache();
-        }
-
-        function clearProgressData() { 
-            if(confirm("確定將清除本機進度，還原成最原始內建的 8 組精選單字庫？")) { 
-                localStorage.removeItem('hybrid_srs_queue'); 
-                localStorage.removeItem('hybrid_srs_original'); 
-                initEngineWithCache(); 
-            } 
-        }
-        
-        function updateCardImage(word) { document.getElementById('card-image').style.backgroundImage = `url('./${word.toLowerCase()}.jpg')`; }
-
-        function evaluateSpeech(userText) {
-            const cleanText = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").split(/\s+/).filter(Boolean);
-            const targetWords = cleanText(currentCard.example_en); const userWords = cleanText(userText);
-            let score = 10.0; const perWordValue = 10.0 / targetWords.length;
-            const feedbackContainer = document.getElementById('visual-transcript'); feedbackContainer.innerHTML = '';
-            let isSemanticInverted = false; const negativeParticles = ['no', 'not', 'dont', 'doesnt', 'didnt', 'cant', 'wont', 'never'];
-            if (targetWords.some(w => negativeParticles.includes(w)) !== userWords.some(w => negativeParticles.includes(w))) isSemanticInverted = true;
-            let htmlOutput = []; let userIdx = 0;
-            for (let i = 0; i < targetWords.length; i++) {
-                const target = targetWords[i]; const user = userWords[userIdx];
-                if (!user) { htmlOutput.push(`<span class="word-missed">${target}</span>`); score -= perWordValue; continue; }
-                if (target === user) { htmlOutput.push(`<span class="word-correct">${target}</span>`); userIdx++; } 
-                else {
-                    const diffRatio = levenshteinDistance(target, user) / Math.max(target.length, user.length);
-                    if (diffRatio <= 0.35) { htmlOutput.push(`<span class="word-correct" style="color:#ffd740; text-decoration: underline dotted;">${user}</span>`); score -= (perWordValue * 0.5); } 
-                    else { htmlOutput.push(`<span class="word-error" title="預期: ${target}">${user}</span>`); score -= perWordValue; }
-                    userIdx++;
-                }
-            }
-            if (isSemanticInverted) { score -= 3.5; document.getElementById('score-text').className = "score-display danger"; document.getElementById('ai-comment').innerHTML = "⚠️ <span style='color:#ff5252; font-weight:bold;'>語意反轉失誤！</span>"; } 
-            else {
-                score = Math.max(0, Math.min(10, score));
-                const scoreTextEl = document.getElementById('score-text'); const aiCommentEl = document.getElementById('ai-comment');
-                if (score >= 9.0) { scoreTextEl.className = "score-display perfect"; aiCommentEl.textContent = "Excellent! 發音極其清晰。"; } 
-                else if (score >= 7.5) { scoreTextEl.className = "score-display"; aiCommentEl.textContent = "Good job! 帶有些微口音。"; } 
-                else { scoreTextEl.className = "score-display danger"; aiCommentEl.textContent = "部分關鍵字偏離。"; }
-            }
-            document.getElementById('score-text').textContent = `${score.toFixed(1)} / 10分`;
-            feedbackContainer.innerHTML = htmlOutput.join(''); document.getElementById('feedback-panel').classList.remove('hidden');
-            
-            // 自動滾動到最下方看結果
-            setTimeout(() => {
-                const scrollBox = document.querySelector('.card-back-content');
-                scrollBox.scrollTop = scrollBox.scrollHeight;
-            }, 50);
-        }
-
-        function levenshteinDistance(s1, s2) {
-            const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null));
-            for (let i = 0; i <= s1.length; i += 1) track[0][i] = i; for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
-            for (let j = 1; j <= s2.length; j += 1) { for (let i = 1; i <= s1.length; i += 1) { const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1; track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator); } }
-            return track[s2.length][s1.length];
-        }
-    </script>
-</body>
-</html>
