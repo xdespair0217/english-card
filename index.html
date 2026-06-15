@@ -18,7 +18,11 @@
             --score-bg: #1a1a1a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background-color: var(--bg-color);
@@ -30,7 +34,7 @@
             justify-content: flex-start;
             align-items: center;
             overflow: hidden;
-            padding-top: 90px;
+            padding-top: 90px; /* 維持黃金比例靠上位置 */
         }
 
         header {
@@ -46,7 +50,7 @@
 
         .progress-container {
             flex-grow: 1;
-            max-width: 350px;
+            max-width: 400px;
             background: #2a2a2a;
             height: 6px;
             border-radius: 3px;
@@ -61,61 +65,212 @@
             transition: width 0.3s ease;
         }
 
-        .counter { font-size: 0.85rem; color: var(--text-sub); min-width: 60px; }
-
-        .btn-group { display: flex; gap: 10px; align-items: center; }
-
-        .action-btn {
-            background: transparent;
-            border: 1px solid #444;
+        .counter {
+            font-size: 0.85rem;
             color: var(--text-sub);
-            padding: 5px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            transition: all 0.2s ease;
+            min-width: 60px;
         }
-        .action-btn:hover { color: var(--text-main); border-color: var(--text-sub); }
-        .btn-export:hover { color: var(--accent-easy); border-color: var(--accent-easy); }
 
-        .stage { perspective: 1000px; width: 95%; max-width: 620px; height: 730px; cursor: pointer; }
-        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .status-tag {
+            font-size: 0.8rem;
+            color: #69f0ae;
+            border: 1px solid #2a4a3a;
+            padding: 4px 12px;
+            border-radius: 15px;
+            background: rgba(105, 240, 174, 0.05);
+        }
+
+        .stage {
+            perspective: 1000px;
+            width: 95%;
+            max-width: 620px; 
+            height: 730px; 
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .card.flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
 
-        .card-front { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
-        .card-front .word { font-size: 3.5rem; font-weight: 700; letter-spacing: -0.5px; }
-        .card-front .hint { position: absolute; bottom: 25px; font-size: 0.8rem; color: var(--text-sub); letter-spacing: 1px; }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
 
-        .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
-        .card-image-bg { width: 100% !important; aspect-ratio: 16 / 9 !important; opacity: 1.0; background-size: contain; background-repeat: no-repeat; background-position: center; pointer-events: none; background-color: #0d0d0d; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .card-front {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
 
-        .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 24px 30px; text-align: left; overflow-y: auto; }
+        .card-front .word {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .card-front .hint {
+            position: absolute;
+            bottom: 25px;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            letter-spacing: 1px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 !important;
+        }
+
+        /* 16:9 黃金滿版圖片 */
+        .card-image-bg {
+            width: 100% !important;
+            aspect-ratio: 16 / 9 !important;
+            opacity: 1.0;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            background-color: #0d0d0d;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        /* 下方獨立拉動文字區 */
+        .card-back-content {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 24px 30px;
+            text-align: left;
+            overflow-y: auto;
+        }
+
         .card-back-content::-webkit-scrollbar { width: 6px; }
+        .card-back-content::-webkit-scrollbar-track { background: transparent; }
         .card-back-content::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
-        .word-meta { display: flex; align-items: baseline; margin-bottom: 2px; }
-        .word-title { font-size: 2.2rem; font-weight: 700; margin-right: 10px; color: #ffffff; }
-        .word-type { font-style: italic; color: var(--text-sub); font-size: 1rem; }
-        .translation { font-size: 1.3rem; margin-bottom: 14px; color: var(--accent-good); font-weight: 600; }
+        .word-meta {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 2px;
+        }
 
-        .section-title { font-size: 0.8rem; color: #ffb74d; margin-top: 8px; margin-bottom: 2px; letter-spacing: 0.5px; font-weight: bold; }
-        .section-text { font-size: 0.95rem; color: var(--text-main); margin-bottom: 6px; padding-left: 4px; white-space: pre-line; line-height: 1.45; }
+        .word-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-right: 10px;
+            color: #ffffff;
+        }
 
-        .example-header { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
-        .mic-btn { background: #252525; border: 1px solid #444; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; outline: none; }
-        .mic-btn svg { width: 16px; height: 16px; fill: #69f0ae; }
+        .word-type {
+            font-style: italic;
+            color: var(--text-sub);
+            font-size: 1rem;
+        }
+
+        .translation {
+            font-size: 1.3rem;
+            margin-bottom: 14px;
+            color: var(--accent-good);
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            color: #ffb74d;
+            margin-top: 8px;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .section-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            padding-left: 4px;
+            white-space: pre-line;
+            line-height: 1.45;
+        }
+
+        .example-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+
+        .mic-btn {
+            background: #252525;
+            border: 1px solid #444;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        .mic-btn svg { width: 16px; height: 16px; fill: #69f0ae; transition: fill 0.2s ease; }
         .mic-btn.recording { border-color: var(--accent-again); animation: pulse 1.2s infinite; }
         .mic-btn.recording svg { fill: var(--accent-again); }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); } }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
+        }
 
-        .example-block { margin-top: 6px; border-left: 2px solid #555; padding-left: 12px; width: 100%; }
+        .example-block {
+            margin-top: 6px;
+            border-left: 2px solid #555;
+            padding-left: 12px;
+            width: 100%;
+        }
+
         .example-en { font-size: 0.95rem; color: var(--text-main); line-height: 1.45; word-break: break-word; }
         .example-ch { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
 
-        .speech-feedback-panel { margin-top: 14px; background-color: var(--score-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; }
-        .feedback-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .speech-feedback-panel {
+            margin-top: 14px;
+            background-color: var(--score-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .feedback-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
         .score-display { font-size: 1.3rem; font-weight: 700; color: var(--accent-hard); }
         .score-display.perfect { color: var(--accent-easy); }
         .score-display.danger { color: var(--accent-again); }
@@ -127,10 +282,36 @@
         .word-missed { color: #888888; text-decoration: line-through; margin-right: 4px; display: inline-block; }
         .ai-commentary { font-size: 0.8rem; color: var(--text-sub); font-style: italic; border-top: 1px solid #2a2a2a; padding-top: 6px; margin-top: 4px; }
 
-        .controls { margin-top: 20px; display: flex; gap: 15px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; width: 100%; max-width: 620px; flex-shrink: 0; }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            width: 100%;
+            max-width: 620px;
+            flex-shrink: 0;
+        }
+
         .controls.visible { opacity: 1; pointer-events: auto; }
 
-        .btn { flex: 1; background: #222; border: 1px solid var(--border-color); padding: 12px; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-main); font-weight: 500; transition: all 0.2s ease; }
+        .btn {
+            flex: 1;
+            background: #222;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
         .btn .num-tag { font-size: 0.7rem; opacity: 0.4; margin-top: 4px; }
         .btn:hover { background: #2b2b2b; }
         .btn-again:hover { border-color: var(--accent-again); color: var(--accent-again); }
@@ -141,9 +322,21 @@
         .message-screen { text-align: center; max-width: 450px; margin-top: 100px; }
         .message-screen h2 { font-size: 2rem; margin-bottom: 16px; font-weight: 600; }
         .message-screen p { color: var(--text-sub); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
+        .stats-list { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; text-align: left; }
+        .stats-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
         .hidden { display: none !important; }
         
-        #hidden-file-input { display: none; }
+        .reset-storage-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .reset-storage-btn:hover { color: var(--accent-again); border-color: var(--accent-again); }
     </style>
 </head>
 <body>
@@ -155,13 +348,9 @@
             </div>
             <span class="counter" id="counter">0 / 0</span>
         </div>
-        <div class="btn-group">
-            <button class="action-btn btn-export" onclick="exportProgressCSV()" title="將目前的記憶進度打包成試算表帶走">導出進度</button>
-            <label class="action-btn" title="在新電腦上導入帶有進度的試算表">
-                導入進度
-                <input type="file" id="hidden-file-input" accept=".csv" onchange="importProgressCSV(event)">
-            </label>
-            <button class="action-btn" onclick="clearProgressData()" style="color:#ff5252;" title="歸零重洗">重置</button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="reset-storage-btn" onclick="clearProgressData()" title="將所有記憶進度歸零、重新洗牌">重置記憶</button>
+            <span class="status-tag">雲端記憶同步中</span>
         </div>
     </header>
 
@@ -223,24 +412,26 @@
 
     <div id="completion-screen" class="message-screen hidden">
         <h2>思維沉澱，破關完成</h2>
-        <p>這批內嵌數據庫已全部完成階段內化。</p>
+        <p>這批寫死的精選詞彙已悉數內化。點擊下方可重頭複習。</p>
         <button class="file-upload-btn" onclick="resetEngine()">重頭學習</button>
     </div>
 
     <script>
-        // 💡 【大腦矩陣】：將試算表內容與進度核心數據（historyCount）完全寫死在一起，合而為一
+        // 💡 【核心重構一】：將 10 組大考中心單字直接寫死在程式碼最底層，作為固定的原生資料庫
         const STATIC_VOCABULARY_DATABASE = [
-            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 },
-            { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。", historyCount: 0 },
-            { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。", historyCount: 0 },
-            { word: "beautiful", type: "adj.", translation: "美麗的", inflection: "beautify (v.) 美化", collocation: "a beautiful scene 美麗的畫面", example_en: "The 16-bit retro style has a beautiful view.", example_ch: "16-bit 復古風格有著美麗的景致。", historyCount: 0 },
-            { word: "correct", type: "adj.", translation: "正確的", inflection: "correction (n.) 修改；糾正", collocation: "correct answer 正確答案", example_en: "Please ensure the diagnostic data is correct.", example_ch: "請確保診斷數據是正確的。", historyCount: 0 },
-            { word: "define", type: "v.", translation: "定義；界定", inflection: "definition (n.) 定義", collocation: "define the rules 定義規則", example_en: "We must define the new protocols for the system.", example_ch: "我們必須為系統定義新的協定。", historyCount: 0 },
-            { word: "different", type: "adj.", translation: "不同的", inflection: "difference (n.) 差異；不同", collocation: "be different from 與…不同", example_en: "They hold two entirely different views.", example_ch: "他們持有兩種截然不同的觀點。", historyCount: 0 },
-            { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。", historyCount: 0 }
+            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。" },
+            { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。" },
+            { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。" },
+            { word: "beautiful", type: "adj.", translation: "美麗的", inflection: "beautify (v.) 美化", collocation: "a beautiful scene 美麗的畫面", example_en: "The 16-bit retro style has a beautiful view.", example_ch: "16-bit 復古風格有著美麗的景致。" },
+            { word: "believe", type: "v.", translation: "相信；信任", inflection: "belief (n.) 信仰；信任", collocation: "believe in God 相信上帝", example_en: "Do you believe in the overlapping realities?", example_ch: "你相信交錯的現實嗎？" },
+            { word: "correct", type: "adj.", translation: "正確的", inflection: "correction (n.) 修改；糾正", collocation: "correct answer 正確答案", example_en: "Please ensure the diagnostic data is correct.", example_ch: "請確保診斷數據是正確的。" },
+            { word: "define", type: "v.", translation: "定義；界定", inflection: "definition (n.) 定義", collocation: "define the rules 定義規則", example_en: "We must define the new protocols for the system.", example_ch: "我們必須為系統定義新的協定。" },
+            { word: "different", type: "adj.", translation: "不同的", inflection: "difference (n.) 差異；不同", collocation: "be different from 與…不同", example_en: "They hold two entirely different views.", example_ch: "他們持有兩種截然不同的觀點。" },
+            { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。" },
+            { word: "experience", type: "n.", translation: "經驗；經歷", inflection: "experienced (adj.) 有經驗的", collocation: "work experience 工作經驗", example_en: "The journey was a profound experience for him.", example_ch: "這次旅程對他而言是一次深刻的經歷。" }
         ];
 
-        let originalCards = JSON.parse(JSON.stringify(STATIC_VOCABULARY_DATABASE));
+        let originalCards = [...STATIC_VOCABULARY_DATABASE];
         let queue = [];
         let currentCard = null;
         let isFlipped = false;
@@ -249,11 +440,14 @@
         let recognition = null;
         let isRecording = false;
 
+        // 語音辨識 Try-Catch 安全阻斷保護
         try {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 recognition = new SpeechRecognition();
-                recognition.continuous = false; recognition.interimResults = false; recognition.lang = 'en-US';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
                 recognition.onstart = () => { isRecording = true; document.getElementById('mic-button').classList.add('recording'); };
                 recognition.onend = () => { isRecording = false; document.getElementById('mic-button').classList.remove('recording'); };
                 recognition.onresult = (event) => { evaluateSpeech(event.results[0][0].transcript); };
@@ -268,22 +462,47 @@
         const progressBar = document.getElementById('progress-bar');
         const counter = document.getElementById('counter');
 
-        window.addEventListener('DOMContentLoaded', () => { initEngineWithCache(); });
+        document.getElementById('card-stage').addEventListener('click', (e) => {
+            if (e.target.closest('#mic-button')) return;
+            flipCard();
+        });
+
+        document.getElementById('mic-button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!recognition) { alert("此環境暫不支援語音功能。"); return; }
+            if (isRecording) { recognition.stop(); } 
+            else { try { synth.cancel(); recognition.start(); } catch(err) {} }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (queue.length === 0) return;
+            if (e.code === 'Space') { e.preventDefault(); flipCard(); } 
+            else if (isFlipped && !isRecording) {
+                if (e.key === '1') handleSRS('again');
+                if (e.key === '2') handleSRS('hard');
+                if (e.key === '3') handleSRS('good');
+                if (e.key === '4') handleSRS('easy');
+            }
+        });
+
+        // 💡 【核心重構二】：網頁載入時，直接初始化並無感讀取隱形保險箱（LocalStorage）的進度
+        window.addEventListener('DOMContentLoaded', () => {
+            initEngineWithCache();
+        });
 
         function initEngineWithCache() {
-            const cachedQueue = localStorage.getItem('embedded_srs_queue');
-            const cachedOriginal = localStorage.getItem('embedded_srs_original');
-            
-            if (cachedQueue && cachedOriginal) {
+            const cachedQueue = localStorage.getItem('observer_srs_queue');
+            if (cachedQueue) {
+                // 如果保險箱有昨天的進度，直接繼承
                 queue = JSON.parse(cachedQueue);
-                originalCards = JSON.parse(cachedOriginal);
             } else {
-                originalCards = JSON.parse(JSON.stringify(STATIC_VOCABULARY_DATABASE));
+                // 如果是全新開啟，直接啟動原生寫死的單字庫
                 queue = [...originalCards];
             }
             
-            if (queue.length === 0) { showCompletion(); } 
-            else {
+            if (queue.length === 0) {
+                showCompletion();
+            } else {
                 learningStage.classList.remove('hidden');
                 completionScreen.classList.add('hidden');
                 updateProgress();
@@ -293,7 +512,9 @@
 
         function showNextCard() {
             if (queue.length === 0) { showCompletion(); return; }
-            isFlipped = false; flashcard.classList.remove('flipped'); controls.classList.remove('visible');
+            isFlipped = false;
+            flashcard.classList.remove('flipped');
+            controls.classList.remove('visible');
             document.getElementById('feedback-panel').classList.add('hidden');
 
             currentCard = queue[0];
@@ -308,116 +529,91 @@
 
             document.querySelector('.card-back-content').scrollTop = 0;
             updateCardImage(currentCard.word);
+            if (queue[1]) preloadImage(queue[1].word);
         }
 
         function flipCard() {
             if (isFlipped || !currentCard) return;
-            isFlipped = true; flashcard.classList.add('flipped'); controls.classList.add('visible');
+            isFlipped = true;
+            flashcard.classList.add('flipped');
+            controls.classList.add('visible');
             speakCard();
         }
 
         function speakCard() {
             synth.cancel(); 
-            const utterWord1 = new SpeechSynthesisUtterance(currentCard.word); utterWord1.lang = 'en-US'; utterWord1.rate = 0.9;
-            const utterExample = new SpeechSynthesisUtterance(currentCard.example_en); utterExample.lang = 'en-US'; utterExample.rate = 0.95;
-            synth.speak(utterWord1); synth.speak(utterExample);
+            const utterWord1 = new SpeechSynthesisUtterance(currentCard.word);
+            utterWord1.lang = 'en-US'; utterWord1.rate = 0.9;
+            const utterWord2 = new SpeechSynthesisUtterance(currentCard.word);
+            utterWord2.lang = 'en-US'; utterWord2.rate = 0.82; 
+            const utterExample = new SpeechSynthesisUtterance(currentCard.example_en);
+            utterExample.lang = 'en-US'; utterExample.rate = 0.95;
+            synth.speak(utterWord1); synth.speak(utterWord2); synth.speak(utterExample);
         }
 
         function handleSRS(level) {
             if (!isFlipped || isRecording) return;
             const card = queue.shift(); 
 
-            // 調整寫在程式碼裡的試算表數據欄位值
-            if (level === 'again') { card.historyCount += 1; queue.splice(1, 0, card); } 
-            else if (level === 'hard') { card.historyCount += 0.5; const idx = Math.max(2, Math.floor(queue.length / 3)); queue.splice(idx, 0, card); } 
-            else if (level === 'good') { card.historyCount -= 0.2; const idx = Math.max(1, Math.floor(queue.length * 0.8)); queue.splice(idx, 0, card); } 
-            else if (level === 'easy') {
-                // 從佇列移除，並更新主庫對應單字的永久狀態
-                const master = originalCards.find(c => c.word === card.word);
-                if(master) master.historyCount = 99; 
+            if (level === 'again') {
+                queue.splice(1, 0, card);
+            } else if (level === 'hard') {
+                const index = Math.max(2, Math.floor(queue.length / 3));
+                queue.splice(index, 0, card);
+            } else if (level === 'good') {
+                const index = Math.max(1, Math.floor(queue.length * 0.8));
+                queue.splice(index, 0, card);
+            } else if (level === 'easy') {
+                // 完全掌握，移出排程
             }
 
-            localStorage.setItem('embedded_srs_queue', JSON.stringify(queue));
-            localStorage.setItem('embedded_srs_original', JSON.stringify(originalCards));
+            // 💡 【核心重構三】：每次按完按鈕，無感即時同步記憶至 LocalStorage 存檔
+            localStorage.setItem('observer_srs_queue', JSON.stringify(queue));
 
             updateProgress();
             showNextCard();
         }
 
-        // 💡 【跨裝置橋樑一】：導出當下的進度試算表 (CSV)
-        function exportProgressCSV() {
-            let csvContent = "\uFEFFword,type,translation,inflection,collocation,example_en,example_ch,historyCount\n";
-            originalCards.forEach(c => {
-                let row = [c.word, c.type, c.translation, c.inflection, c.collocation.replace(/\n/g, '\\n'), c.example_en, c.example_ch, c.historyCount];
-                let escapedRow = row.map(v => `"${String(v).replace(/"/g, '""')}"`);
-                csvContent += escapedRow.join(",") + "\n";
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `srs_progress_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // 💡 【跨裝置橋樑二】：在新電腦上，直接導入含有進度的試算表，覆蓋原生代碼進度
-        function importProgressCSV(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const lines = evt.target.result.replace(/\r/g, '').split('\n');
-                let importedOriginal = [];
-                for (let i = 1; i < lines.length; i++) {
-                    let line = lines[i].trim(); if (!line) continue;
-                    let row = [], inQuotes = false, currentField = '';
-                    for (let j = 0; j < line.length; j++) {
-                        let char = line[j];
-                        if (char === '"') inQuotes = !inQuotes;
-                        else if (char === ',' && !inQuotes) { row.push(currentField.trim()); currentField = ''; }
-                        else currentField += char;
-                    }
-                    row.push(currentField.trim());
-                    if (row.length >= 8) {
-                        importedOriginal.push({
-                            word: row[0], type: row[1], translation: row[2], inflection: row[3],
-                            collocation: row[4].replace(/\\n/g, '\n'), example_en: row[5], example_ch: row[6],
-                            historyCount: parseFloat(row[7]) || 0
-                        });
-                    }
-                }
-                if(importedOriginal.length > 0) {
-                    originalCards = importedOriginal;
-                    queue = originalCards.filter(c => c.historyCount < 99); // 過濾掉已經 Easy (99) 的字卡
-                    localStorage.setItem('embedded_srs_queue', JSON.stringify(queue));
-                    localStorage.setItem('embedded_srs_original', JSON.stringify(originalCards));
-                    alert("成功對接進度！記憶已同步。");
-                    initEngineWithCache();
-                }
-            };
-            reader.readAsText(file, 'UTF-8');
-        }
-
         function updateProgress() {
             const total = originalCards.length;
             const currentLeft = queue.length;
-            progressBar.style.width = `${total > 0 ? ((total - currentLeft) / total) * 100 : 0}%`;
+            const done = total - currentLeft;
+            progressBar.style.width = `${total > 0 ? (done / total) * 100 : 0}%`;
             counter.textContent = `${currentLeft} / ${total}`;
         }
 
-        function showCompletion() { learningStage.classList.add('hidden'); completionScreen.classList.remove('hidden'); localStorage.removeItem('embedded_srs_queue'); }
-        function resetEngine() { localStorage.removeItem('embedded_srs_queue'); localStorage.removeItem('embedded_srs_original'); initEngineWithCache(); }
-        function clearProgressData() { if(confirm("重置將抹去本機所有記憶軌跡，重新洗牌？")) { resetEngine(); } }
-        function updateCardImage(word) { document.getElementById('card-image').style.backgroundImage = `url('./${word.toLowerCase()}.jpg')`; }
+        function showCompletion() {
+            learningStage.classList.add('hidden');
+            completionScreen.classList.remove('hidden');
+            localStorage.removeItem('observer_srs_queue'); // 通關後清除暫存，下次重頭來過
+        }
 
-        // 口說智評模組
+        function resetEngine() {
+            queue = [...originalCards];
+            localStorage.setItem('observer_srs_queue', JSON.stringify(queue));
+            completionScreen.classList.add('hidden');
+            learningStage.classList.remove('hidden');
+            updateProgress();
+            showNextCard();
+        }
+
+        function clearProgressData() {
+            if(confirm("確定要將這批字卡的 SRS 熟練度排程全部歸零重置嗎？")) {
+                localStorage.removeItem('observer_srs_queue');
+                initEngineWithCache();
+            }
+        }
+
+        // 口說智評演算法與 GitHub Pages 相容性路徑優化
         function evaluateSpeech(userText) {
             const cleanText = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").split(/\s+/).filter(Boolean);
-            const targetWords = cleanText(currentCard.example_en); const userWords = cleanText(userText);
+            const targetWords = cleanText(currentCard.example_en);
+            const userWords = cleanText(userText);
             let score = 10.0; const perWordValue = 10.0 / targetWords.length;
-            const feedbackContainer = document.getElementById('visual-transcript'); feedbackContainer.innerHTML = '';
-            let isSemanticInverted = false; const negativeParticles = ['no', 'not', 'dont', 'doesnt', 'didnt', 'cant', 'wont', 'never'];
+            const feedbackContainer = document.getElementById('visual-transcript');
+            feedbackContainer.innerHTML = '';
+            let isSemanticInverted = false;
+            const negativeParticles = ['no', 'not', 'dont', 'doesnt', 'didnt', 'cant', 'wont', 'never'];
             if (targetWords.some(w => negativeParticles.includes(w)) !== userWords.some(w => negativeParticles.includes(w))) isSemanticInverted = true;
             let htmlOutput = []; let userIdx = 0;
             for (let i = 0; i < targetWords.length; i++) {
@@ -431,16 +627,19 @@
                     userIdx++;
                 }
             }
+            while(userIdx < userWords.length) { htmlOutput.push(`<span class="word-error" style="opacity: 0.6;" title="贅字">${userWords[userIdx]}</span>`); score -= (perWordValue * 0.3); userIdx++; }
             if (isSemanticInverted) { score -= 3.5; document.getElementById('score-text').className = "score-display danger"; document.getElementById('ai-comment').innerHTML = "⚠️ <span style='color:#ff5252; font-weight:bold;'>語意反轉失誤！</span>"; } 
             else {
                 score = Math.max(0, Math.min(10, score));
                 const scoreTextEl = document.getElementById('score-text'); const aiCommentEl = document.getElementById('ai-comment');
                 if (score >= 9.0) { scoreTextEl.className = "score-display perfect"; aiCommentEl.textContent = "Excellent! 發音極其清晰。"; } 
-                else if (score >= 7.5) { scoreTextEl.className = "score-display"; aiCommentEl.textContent = "Good job! 帶有些微口音。"; } 
-                else { scoreTextEl.className = "score-display danger"; aiCommentEl.textContent = "部分關鍵字偏離。"; }
+                else if (score >= 7.5) { scoreTextEl.className = "score-display"; aiCommentEl.textContent = "Good job! 帶有些微口音，不影響溝通。"; } 
+                else { scoreTextEl.className = "score-display danger"; aiCommentEl.textContent = "關鍵字偏離，可能造成誤解。"; }
             }
             document.getElementById('score-text').textContent = `${score.toFixed(1)} / 10分`;
-            feedbackContainer.innerHTML = htmlOutput.join(''); document.getElementById('feedback-panel').classList.remove('hidden'); document.querySelector('.card-back-content').scrollTop = 300;
+            feedbackContainer.innerHTML = htmlOutput.join('');
+            document.getElementById('feedback-panel').classList.remove('hidden');
+            document.querySelector('.card-back-content').scrollTop = 300;
         }
 
         function levenshteinDistance(s1, s2) {
@@ -448,6 +647,16 @@
             for (let i = 0; i <= s1.length; i += 1) track[0][i] = i; for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
             for (let j = 1; j <= s2.length; j += 1) { for (let i = 1; i <= s1.length; i += 1) { const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1; track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator); } }
             return track[s2.length][s1.length];
+        }
+
+        function updateCardImage(word) {
+            const localSrc = `./${word.toLowerCase()}.jpg`;
+            document.getElementById('card-image').style.backgroundImage = `url('${localSrc}')`;
+        }
+
+        function preloadImage(word) {
+            const img = new Image();
+            img.src = `./${word.toLowerCase()}.jpg`;
         }
     </script>
 </body>
