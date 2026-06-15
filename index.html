@@ -156,12 +156,12 @@
             <span class="counter" id="counter">0 / 0</span>
         </div>
         <div class="btn-group">
-            <button class="action-btn btn-export" onclick="exportProgressCSV()" title="將目前的記憶進度與單字打包下載成 CSV 帶走">導出進度</button>
-            <label class="action-btn" title="匯入包含新單字或是含有進度的任何 CSV 試算表">
-                導入新內容
+            <button class="action-btn btn-export" onclick="exportProgressCSV()" title="將目前的記憶進度打包成試算表帶走">導出進度</button>
+            <label class="action-btn" title="在新電腦上導入帶有進度的試算表">
+                導入進度
                 <input type="file" id="hidden-file-input" accept=".csv" onchange="importProgressCSV(event)">
             </label>
-            <button class="action-btn" onclick="clearProgressData()" style="color:#ff5252;" title="歸零並還原回最原始內建的 8 組單字庫">還原內建</button>
+            <button class="action-btn" onclick="clearProgressData()" style="color:#ff5252;" title="歸零重洗">重置</button>
         </div>
     </header>
 
@@ -223,13 +223,13 @@
 
     <div id="completion-screen" class="message-screen hidden">
         <h2>思維沉澱，破關完成</h2>
-        <p>當前序列已順利完成內化。點擊下方可再度重頭挑戰。</p>
+        <p>這批內嵌數據庫已全部完成階段內化。</p>
         <button class="file-upload-btn" onclick="resetEngine()">重頭學習</button>
     </div>
 
     <script>
-        // 避風港：出廠時的原生寫死資料庫
-        const DEFAULT_INTERNAL_DATABASE = [
+        // 💡 【大腦矩陣】：將試算表內容與進度核心數據（historyCount）完全寫死在一起，合而為一
+        const STATIC_VOCABULARY_DATABASE = [
             { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 },
             { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。", historyCount: 0 },
             { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。", historyCount: 0 },
@@ -240,7 +240,7 @@
             { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。", historyCount: 0 }
         ];
 
-        let originalCards = [];
+        let originalCards = JSON.parse(JSON.stringify(STATIC_VOCABULARY_DATABASE));
         let queue = [];
         let currentCard = null;
         let isFlipped = false;
@@ -261,19 +261,24 @@
             }
         } catch (e) { console.error(e); }
 
+        const learningStage = document.getElementById('learning-stage');
+        const completionScreen = document.getElementById('completion-screen');
+        const flashcard = document.getElementById('flashcard');
+        const controls = document.getElementById('controls');
+        const progressBar = document.getElementById('progress-bar');
+        const counter = document.getElementById('counter');
+
         window.addEventListener('DOMContentLoaded', () => { initEngineWithCache(); });
 
         function initEngineWithCache() {
-            const cachedQueue = localStorage.getItem('hybrid_srs_queue');
-            const cachedOriginal = localStorage.getItem('hybrid_srs_original');
+            const cachedQueue = localStorage.getItem('embedded_srs_queue');
+            const cachedOriginal = localStorage.getItem('embedded_srs_original');
             
             if (cachedQueue && cachedOriginal) {
-                // 如果保險箱裡有進度紀錄（不管是原生單字還是使用者後來導入的全新單字），一律完美沿用
                 queue = JSON.parse(cachedQueue);
                 originalCards = JSON.parse(cachedOriginal);
             } else {
-                // 如果乾乾淨淨、或是被按了還原，自動調動寫死的 8 組預設資料庫
-                originalCards = JSON.parse(JSON.stringify(DEFAULT_INTERNAL_DATABASE));
+                originalCards = JSON.parse(JSON.stringify(STATIC_VOCABULARY_DATABASE));
                 queue = [...originalCards];
             }
             
@@ -322,44 +327,48 @@
             if (!isFlipped || isRecording) return;
             const card = queue.shift(); 
 
+            // 調整寫在程式碼裡的試算表數據欄位值
             if (level === 'again') { card.historyCount += 1; queue.splice(1, 0, card); } 
             else if (level === 'hard') { card.historyCount += 0.5; const idx = Math.max(2, Math.floor(queue.length / 3)); queue.splice(idx, 0, card); } 
             else if (level === 'good') { card.historyCount -= 0.2; const idx = Math.max(1, Math.floor(queue.length * 0.8)); queue.splice(idx, 0, card); } 
             else if (level === 'easy') {
+                // 從佇列移除，並更新主庫對應單字的永久狀態
                 const master = originalCards.find(c => c.word === card.word);
                 if(master) master.historyCount = 99; 
             }
 
-            localStorage.setItem('hybrid_srs_queue', JSON.stringify(queue));
-            localStorage.setItem('hybrid_srs_original', JSON.stringify(originalCards));
+            localStorage.setItem('embedded_srs_queue', JSON.stringify(queue));
+            localStorage.setItem('embedded_srs_original', JSON.stringify(originalCards));
 
             updateProgress();
             showNextCard();
         }
 
-        // 💡 隨時允許導出（不管是用預設的還是自己新匯入的內容）
+        // 💡 【跨裝置橋樑一】：導出當下的進度試算表 (CSV)
         function exportProgressCSV() {
             let csvContent = "\uFEFFword,type,translation,inflection,collocation,example_en,example_ch,historyCount\n";
             originalCards.forEach(c => {
-                let row = [c.word, c.type, c.translation, c.inflection, c.collocation.replace(/\n/g, '\\n'), c.example_en, c.example_ch, c.historyCount || 0];
+                let row = [c.word, c.type, c.translation, c.inflection, c.collocation.replace(/\n/g, '\\n'), c.example_en, c.example_ch, c.historyCount];
                 let escapedRow = row.map(v => `"${String(v).replace(/"/g, '""')}"`);
                 csvContent += escapedRow.join(",") + "\n";
             });
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `observer_database_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            link.setAttribute("download", `srs_progress_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        // 💡 核心優化：隨時允許丟入完全「新的東西」！系統會在一秒內完成洗牌、吞下新內容
+        // 💡 【跨裝置橋樑二】：在新電腦上，直接導入含有進度的試算表，覆蓋原生代碼進度
         function importProgressCSV(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const lines = evt.target.result.replace(/\r/g, '').split('\n');
-                let importedData = [];
+                let importedOriginal = [];
                 for (let i = 1; i < lines.length; i++) {
                     let line = lines[i].trim(); if (!line) continue;
                     let row = [], inQuotes = false, currentField = '';
@@ -370,20 +379,20 @@
                         else currentField += char;
                     }
                     row.push(currentField.trim());
-                    if (row.length >= 7) {
-                        importedData.push({
+                    if (row.length >= 8) {
+                        importedOriginal.push({
                             word: row[0], type: row[1], translation: row[2], inflection: row[3],
                             collocation: row[4].replace(/\\n/g, '\n'), example_en: row[5], example_ch: row[6],
-                            historyCount: row[7] ? parseFloat(row[7]) : 0
+                            historyCount: parseFloat(row[7]) || 0
                         });
                     }
                 }
-                if(importedData.length > 0) {
-                    originalCards = importedData;
-                    queue = originalCards.filter(c => c.historyCount < 99);
-                    localStorage.setItem('hybrid_srs_queue', JSON.stringify(queue));
-                    localStorage.setItem('hybrid_srs_original', JSON.stringify(originalCards));
-                    alert("🎯 成功注入全新學習內容！");
+                if(importedOriginal.length > 0) {
+                    originalCards = importedOriginal;
+                    queue = originalCards.filter(c => c.historyCount < 99); // 過濾掉已經 Easy (99) 的字卡
+                    localStorage.setItem('embedded_srs_queue', JSON.stringify(queue));
+                    localStorage.setItem('embedded_srs_original', JSON.stringify(originalCards));
+                    alert("成功對接進度！記憶已同步。");
                     initEngineWithCache();
                 }
             };
@@ -397,24 +406,9 @@
             counter.textContent = `${currentLeft} / ${total}`;
         }
 
-        function showCompletion() { learningStage.classList.add('hidden'); completionScreen.classList.remove('hidden'); localStorage.removeItem('hybrid_srs_queue'); }
-        
-        function resetEngine() { 
-            // 如果當前的 originalCards 是預設的那批，就重啟預設；如果是使用者自己導入的新東西，就維持新東西重頭學
-            queue = originalCards.map(c => { if(c.historyCount == 99) c.historyCount = 0; return c; });
-            localStorage.setItem('hybrid_srs_queue', JSON.stringify(queue));
-            localStorage.setItem('hybrid_srs_original', JSON.stringify(originalCards));
-            initEngineWithCache();
-        }
-
-        function clearProgressData() { 
-            if(confirm("點擊確定將清除所有本機進度快取，並強制【還原成最原始內建的 8 組精選單字庫】？")) { 
-                localStorage.removeItem('hybrid_srs_queue'); 
-                localStorage.removeItem('hybrid_srs_original'); 
-                initEngineWithCache(); 
-            } 
-        }
-        
+        function showCompletion() { learningStage.classList.add('hidden'); completionScreen.classList.remove('hidden'); localStorage.removeItem('embedded_srs_queue'); }
+        function resetEngine() { localStorage.removeItem('embedded_srs_queue'); localStorage.removeItem('embedded_srs_original'); initEngineWithCache(); }
+        function clearProgressData() { if(confirm("重置將抹去本機所有記憶軌跡，重新洗牌？")) { resetEngine(); } }
         function updateCardImage(word) { document.getElementById('card-image').style.backgroundImage = `url('./${word.toLowerCase()}.jpg')`; }
 
         // 口說智評模組
