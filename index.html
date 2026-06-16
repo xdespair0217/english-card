@@ -326,17 +326,22 @@
             z-index: 15;
         }
 
-        /* 未選課程時的初始主視覺圖片專用排版區域 */
+        /* 網路絕對路徑 WebP 封面的排版區域 */
         .card-top-cover {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('./top.jpg'); /* 相容純小寫檔名 */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
             background-color: #121212;
             z-index: 50; 
             border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .card-top-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
         }
 
         .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
@@ -355,22 +360,40 @@
             flex-shrink: 0; 
         }
 
-        .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 18px; text-align: left; overflow-y: auto; }
+        /* 🔒 核心升級：將背面容器設為相對定位基準，以利右側按鈕精準錨定 */
+        .card-back-content { 
+            position: relative; /* 關鍵：做為絕對定位的坐標原點 */
+            width: 100%; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+            padding: 14px 18px; 
+            text-align: left; 
+            overflow-y: auto; 
+        }
 
-        /* 彈性單字標頭整合區 */
+        /* 🔒 核心升級：重構單字與詞性區塊，保留左側最大安全通道 */
         .word-meta { 
             display: flex; 
-            align-items: center; 
-            margin-bottom: 6px; 
+            align-items: baseline; 
+            margin-bottom: 4px; 
             flex-wrap: wrap; 
-            justify-content: space-between; 
-            width: 100%; 
-            gap: 10px; 
+            padding-right: 115px; /* 重要：在右側留出 115px 的護城河防線，文字絕不會推擠到按鈕 */
+            width: 100%;
         }
-        .meta-left { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; }
-        .word-title { font-size: 1.6rem; font-weight: 700; color: #ffffff; word-break: break-all; }
+        .word-title { font-size: 1.6rem; font-weight: 700; margin-right: 10px; color: #ffffff; word-break: break-all; }
         .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
-        .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; }
+        
+        /* 🔒 核心升級：強制將背面重聽按鈕進行右側絕對定位鎖定 */
+        .back-speaker-position {
+            position: absolute;
+            top: 14px;      /* 完美對齊 padding 的上邊界 */
+            right: 18px;    /* 完美對齊 padding 的右邊界，實現極致靠右 */
+            z-index: 99;    /* 確保置頂於所有視覺層之上，防範任何覆蓋 */
+        }
+
+        .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; padding-right: 115px; }
 
         .section-title { font-size: 0.75rem; color: #ffb74d; margin-top: 6px; margin-bottom: 2px; letter-spacing: 0.5px; font-weight: bold; }
         .section-text { font-size: 0.9rem; color: var(--text-main); margin-bottom: 4px; padding-left: 4px; white-space: pre-line; line-height: 1.4; }
@@ -399,12 +422,6 @@
         .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
         .file-upload-btn { background: #252525; border: 1px solid #444; color: var(--text-main); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         .hidden { display: none !important; }
-
-        /* 行動端優化 CSS 補丁 */
-        @media (max-width: 480px) { 
-            .word-meta { flex-direction: column; align-items: flex-start; gap: 8px; } 
-            .card-speaker-btn { align-self: flex-start; } 
-        }
     </style>
 </head>
 <body>
@@ -413,12 +430,12 @@
         <div class="manual-container">
             <div class="manual-header">
                 <h1>AI 科學記憶永久宮殿 — 系統操作運作說明書</h1>
-                <p>解估未知的真相，建立高精度的語言與思維內化階梯</p>
+                <p>解構未知的真相，建立高精度的語言與思維內化階梯</p>
             </div>
             <div class="manual-content">
                 
                 <div class="manual-section">
-                    <h2>一、 數據底層：Google 試算表第 1 列欄位定義</h2>
+                    <h2>二、 數據底層：Google 試算表第 1 列欄位定義</h2>
                     <p>子課程試算表必須嚴格遵循 10 欄位純英文標頭（A1 到 J1 欄），確保資料流精準映射：</p>
                     <table class="manual-table">
                         <thead>
@@ -510,7 +527,9 @@
         <div class="stage" id="card-stage" onclick="flipCard()">
             <div class="card" id="flashcard">
                 
-                <div id="initial-top-cover" class="card-top-cover"></div>
+                <div id="initial-top-cover" class="card-top-cover">
+                    <img src="https://r2.uploads.tw/2026/06/KQxnJG4NAw.webp" alt="黑盒子頻道主視覺封面">
+                </div>
 
                 <div class="card-face card-front">
                     <div class="card-level-badge" id="front-level">-</div>
@@ -523,13 +542,16 @@
                 <div class="card-face card-back">
                     <div class="card-image-bg" id="card-image"></div>
                     <div class="card-back-content" onclick="event.stopPropagation();">
+                        
                         <div class="word-meta">
                             <div class="meta-left">
                                 <span class="word-title" id="back-word">-</span>
                                 <span class="word-type" id="back-type">-</span>
                             </div>
-                            <button class="card-speaker-btn" onclick="replayAudio();">🔊 重聽發音</button>
                         </div>
+                        
+                        <button class="card-speaker-btn back-speaker-position" onclick="replayAudio();">🔊 重聽發音</button>
+                        
                         <div class="translation" id="back-translation">-</div>
                         
                         <div class="section-title" id="label-inflection">【詞性變化】</div>
@@ -607,7 +629,6 @@
             document.getElementById('mic-button').addEventListener('click', (e) => { e.stopPropagation(); toggleRecording(); });
         });
 
-        // ✨ 新增：高效率洗牌演算法（Fisher-Yates Shuffle），確保完全隨機且不重複
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -669,7 +690,7 @@
 
         function handleCourseSwitch(value) {
             if (value === "none_selected") {
-                document.getElementById('initial-top-cover').style.display = 'block';
+                document.getElementById('initial-top-cover').style.display = 'flex';
                 controls.classList.remove('visible');
                 return;
             }
@@ -706,17 +727,11 @@
             const cachedOriginal = localStorage.getItem(cacheKey_orig);
             
             if (cachedQueue && cachedOriginal) {
-                // 繼承歷史進度：若有快取，代表使用者正在進行這個課程
                 queue = JSON.parse(cachedQueue);
                 originalCards = JSON.parse(cachedOriginal);
             } else {
-                // 🚀 初次進入或新選課程：複製一份原始試算表名單
                 originalCards = JSON.parse(JSON.stringify(baseCards));
-                
-                // 🔒 先過濾掉已經被標記為學會（Easy = 99）的字，保留未內化的卡片
                 let activeCards = originalCards.filter(c => c.historyCount !== 99);
-                
-                // 🎲 核心優化：將未學會的單字進行「完全隨機洗牌」！打破表格順序依賴
                 queue = shuffleArray(activeCards);
             }
             
@@ -770,7 +785,7 @@
         }
 
         function flipCard() {
-            if (document.getElementById('initial-top-cover').style.display === 'block') return;
+            if (document.getElementById('initial-top-cover').style.display === 'flex') return;
             if (isFlipped || !currentCard) return;
             isFlipped = true; flashcard.classList.add('flipped'); controls.classList.add('visible');
             speakCard();
@@ -827,7 +842,7 @@
             else if (level === 'good') { card.historyCount = (card.historyCount || 0) - 0.2; const idx = Math.max(1, Math.floor(queue.length * 0.8)); queue.splice(idx, 0, card); } 
             else if (level === 'easy') {
                 const master = originalCards.find(c => c.word === card.word);
-                if(master) master.historyCount = 99; // 鎖定標記學會
+                if(master) master.historyCount = 99; 
             }
             const suffix = btoa(currentCourseKey).substring(0,20);
             localStorage.setItem(`srs_queue_${suffix}`, JSON.stringify(queue));
@@ -878,13 +893,11 @@
             counter.textContent = `${currentLeft} / ${total}`;
         }
         
-        // 🚀 重頭學習演算法優化：重新將卡片徹底大洗牌
         function resetEngine() { 
             queue = originalCards.map(c => { 
                 if(c.historyCount == 99) c.historyCount = 0; 
                 return c; 
             }); 
-            // 清除本地快取，強制重頭載入洗牌
             const suffix = btoa(currentCourseKey).substring(0,20);
             localStorage.removeItem(`srs_queue_${suffix}`);
             localStorage.removeItem(`srs_orig_${suffix}`);
