@@ -170,6 +170,44 @@
         .card-front .word { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.5px; text-align: center; word-break: break-all; color: #ffffff; }
         .card-front .hint { position: absolute; bottom: 25px; font-size: 0.8rem; color: var(--text-sub); letter-spacing: 1px; }
 
+        /* 右上角難易度等級標籤樣式 */
+        .card-level-badge {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #2a2a2a;
+            color: var(--accent-good);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid #444;
+            letter-spacing: 0.5px;
+        }
+
+        /* ✨ 新增：卡片專屬的隨手聽重複發音小按鈕樣式 */
+        .card-speaker-btn {
+            background: #252525;
+            border: 1px solid #444;
+            color: var(--accent-easy);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .card-speaker-btn:hover {
+            background: #333;
+            border-color: var(--accent-easy);
+        }
+        /* 正面大喇叭按鈕位置偏中間下方 */
+        .front-speaker-box {
+            margin-top: 20px;
+            z-index: 15;
+        }
+
         .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
         
         .card-image-bg { 
@@ -188,7 +226,8 @@
 
         .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 18px; text-align: left; overflow-y: auto; }
 
-        .word-meta { display: flex; align-items: baseline; margin-bottom: 2px; flex-wrap: wrap; }
+        .word-meta { display: flex; align-items: center; margin-bottom: 2px; flex-wrap: wrap; justify-content: space-between; width: 100%; }
+        .meta-left { display: flex; align-items: baseline; }
         .word-title { font-size: 1.6rem; font-weight: 700; margin-right: 10px; color: #ffffff; }
         .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
         .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; }
@@ -256,15 +295,22 @@
         <div class="stage" id="card-stage" onclick="flipCard()">
             <div class="card" id="flashcard">
                 <div class="card-face card-front">
+                    <div class="card-level-badge" id="front-level">-</div>
                     <div class="word" id="front-word">-</div>
+                    <div class="front-speaker-box">
+                        <button class="card-speaker-btn" onclick="event.stopPropagation(); replayAudio();">🔊 重複聽單字</button>
+                    </div>
                     <div class="hint">點擊卡片翻面</div>
                 </div>
                 <div class="card-face card-back">
                     <div class="card-image-bg" id="card-image"></div>
                     <div class="card-back-content" onclick="event.stopPropagation();">
                         <div class="word-meta">
-                            <span class="word-title" id="back-word">-</span>
-                            <span class="word-type" id="back-type">-</span>
+                            <div class="meta-left">
+                                <span class="word-title" id="back-word">-</span>
+                                <span class="word-type" id="back-type">-</span>
+                            </div>
+                            <button class="card-speaker-btn" onclick="replayAudio();">🔊 重聽發音</button>
                         </div>
                         <div class="translation" id="back-translation">-</div>
                         
@@ -273,6 +319,9 @@
                         
                         <div class="section-title" id="label-collocation">【搭配詞】</div>
                         <div class="section-text" id="back-collocation">-</div>
+
+                        <div class="section-title" id="label-phr" style="color:#40c4ff;">【核心片語】</div>
+                        <div class="section-text" id="back-phr" style="color:#ffffff; font-weight:500;">-</div>
                         
                         <div class="example-header">
                             <div class="section-title" id="label-challenge">【例句口說挑戰】</div>
@@ -312,8 +361,9 @@
         // 🔒 固定寫死你的總目錄 CSV 網址（底層自動對接機制）
         const MASTER_INDEX_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwcq7RkVq_FVU4iYHMLTFQW_DIRkqgaSsp1dEkEp0zYxz-saj00T-IM2Km8WbT41oFrzkUUXMqQp-j/pub?output=csv";
 
+        // 預設內建庫同步擴展為 10 欄位格式以防錯位
         const DEFAULT_INTERNAL_DATABASE = [
-            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 }
+            { word: "ability", type: "n.", level: "A2", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to", phr: "ability to do sth.", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 }
         ];
 
         let currentCourseKey = "internal_default";
@@ -419,7 +469,7 @@
                         loadCardsData(cards, currentCourseKey);
                     })
                     .catch(err => {
-                        alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行(第1列)是否已經改成乾淨的純英文(word, type, translation 等)，且有開啟發布到網路。");
+                        alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行(第1列)是否已經改成 10 欄位純英文(word, type, level, translation 等)，且有開啟發布到網路。");
                         handleCourseSwitch("internal_default");
                     });
             }
@@ -454,11 +504,13 @@
                 currentLangMode = "zh-TW";
                 document.getElementById('label-inflection').textContent = "【出處 / 背景】";
                 document.getElementById('label-collocation').textContent = "【核心寓意】";
+                document.getElementById('label-phr').textContent = "【衍生典故】";
                 document.getElementById('label-challenge').textContent = "【故事與現代啟示口說挑戰】";
             } else {
                 currentLangMode = "en-US";
                 document.getElementById('label-inflection').textContent = "【詞性變化】";
                 document.getElementById('label-collocation').textContent = "【搭配詞】";
+                document.getElementById('label-phr').textContent = "【核心片語】";
                 document.getElementById('label-challenge').textContent = "【例句口說挑戰】";
             }
             if(recognition) { recognition.lang = currentLangMode; }
@@ -471,12 +523,15 @@
             currentCard = queue[0];
             detectLanguageAndAdjustUI(currentCard);
 
+            // 寫入更新後的 10 欄位對應內容
+            document.getElementById('front-level').textContent = currentCard.level || '-';
             document.getElementById('front-word').textContent = currentCard.word;
             document.getElementById('back-word').textContent = currentCard.word;
             document.getElementById('back-type').textContent = currentCard.type || '';
             document.getElementById('back-translation').textContent = currentCard.translation;
             document.getElementById('back-inflection').textContent = currentCard.inflection;
             document.getElementById('back-collocation').textContent = currentCard.collocation;
+            document.getElementById('back-phr').textContent = currentCard.phr || '-'; 
             document.getElementById('back-example-en').textContent = currentCard.example_en;
             document.getElementById('back-example-ch').textContent = currentCard.example_ch || '';
             document.querySelector('.card-back-content').scrollTop = 0;
@@ -489,14 +544,53 @@
             speakCard();
         }
 
+        // 🔊 高精密發音時機控制：杜絕任何中文混入發音
         function speakCard() {
             try {
                 synth.cancel(); 
+                
+                // 1. 先發音主要單字
                 const utterWord = new SpeechSynthesisUtterance(currentCard.word); 
-                utterWord.lang = currentLangMode; utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
-                const utterExample = new SpeechSynthesisUtterance(currentCard.example_en); 
-                utterExample.lang = currentLangMode; utterExample.rate = currentLangMode === "zh-TW" ? 1.0 : 0.95;
-                synth.speak(utterWord); synth.speak(utterExample);
+                utterWord.lang = currentLangMode; 
+                utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
+                synth.speak(utterWord); 
+
+                // 2. 如果是英文模式，接著讀取【核心片語】與【生活例句】
+                if (currentLangMode === "en-US") {
+                    const phrText = currentCard.phr ? currentCard.phr.replace(/\\n/g, " ") : "";
+                    const exText = currentCard.example_en ? currentCard.example_en.replace(/\\n/g, " ") : "";
+                    
+                    const combineSpeech = `${phrText}. ${exText}`;
+                    if (combineSpeech.trim()) {
+                        const utterBody = new SpeechSynthesisUtterance(combineSpeech);
+                        utterBody.lang = "en-US";
+                        utterBody.rate = 0.9; 
+                        synth.speak(utterBody);
+                    }
+                } else {
+                    const utterExample = new SpeechSynthesisUtterance(currentCard.example_en); 
+                    utterExample.lang = currentLangMode; 
+                    utterExample.rate = 1.0;
+                    synth.speak(utterExample);
+                }
+            } catch(e) {}
+        }
+
+        // ✨ 供外部按鈕隨時重播的精密發音控制函數
+        function replayAudio() {
+            if (!currentCard) return;
+            try {
+                synth.cancel();
+                if (!isFlipped) {
+                    // 正面時：只重播單字本身
+                    const utterWord = new SpeechSynthesisUtterance(currentCard.word);
+                    utterWord.lang = currentLangMode;
+                    utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
+                    synth.speak(utterWord);
+                } else {
+                    // 背面時：直接重播完整的組合音訊
+                    speakCard();
+                }
             } catch(e) {}
         }
 
@@ -516,17 +610,26 @@
             updateProgress(); showNextCard();
         }
 
+        // 🛠️ 10 欄位精密數據映射解析核心
         function parseCourseCSV(text) {
             const lines = text.replace(/\r/g, '').split('\n');
             let importedData = [];
             for (let i = 1; i < lines.length; i++) {
                 let line = lines[i].trim(); if (!line) continue;
                 let row = parseCSVLine(line);
-                if (row.length >= 6) {
+                
+                if (row.length >= 8) {
                     importedData.push({
-                        word: row[0], type: row[1] || '', translation: row[2], inflection: row[3] ? row[3].replace(/\\n/g, '\n') : '',
-                        collocation: row[4] ? row[4].replace(/\\n/g, '\n') : '', example_en: row[5], example_ch: row[6] || '',
-                        historyCount: row[7] ? parseFloat(row[7]) : 0
+                        word:         row[0] ? row[0].trim() : '', 
+                        type:         row[1] ? row[1].trim() : '', 
+                        level:        row[2] ? row[2].trim() : '', 
+                        translation:  row[3] ? row[3].trim() : '', 
+                        inflection:   row[4] ? row[4].replace(/\\n/g, '\n') : '',
+                        collocation:  row[5] ? row[5].replace(/\\n/g, '\n') : '', 
+                        phr:          row[6] ? row[6].replace(/\\n/g, '\n') : '', 
+                        example_en:   row[7] ? row[7].replace(/\\n/g, '\n') : '', 
+                        example_ch:   row[8] ? row[8].replace(/\\n/g, '\n') : '',
+                        historyCount: row[9] ? parseFloat(row[9]) : 0
                     });
                 }
             }
