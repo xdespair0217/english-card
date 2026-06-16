@@ -33,52 +33,28 @@
             padding: 10px 12px 20px 12px; 
         }
 
-        /* 🌐 頂部總目錄與課程切換控制區 */
+        /* 🌐 頂部課程切換控制區（已隱藏手動輸入框，只留下純粹的課程下拉選單） */
         .directory-zone {
             width: 100%;
             max-width: 620px;
             background: #1a1a1a;
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 8px;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
             flex-shrink: 0;
         }
-        .dir-row { display: flex; gap: 8px; align-items: center; width: 100%; }
-        .dir-input {
-            flex: 1;
-            background: #252525;
-            border: 1px solid #444;
-            color: var(--text-main);
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            outline: none;
-        }
-        .dir-btn {
-            background: #2b2b2b;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .dir-btn:hover { background: #3a3a3a; border-color: var(--text-sub); }
         .course-select {
             flex: 1;
             background: #252525;
             border: 1px solid #444;
             color: #ffd740;
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: 6px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
             outline: none;
             cursor: pointer;
@@ -129,7 +105,7 @@
         }
         .action-btn:hover { color: var(--text-main); border-color: var(--text-sub); }
 
-        /* 🔼 頂部 SRS 控制區 */
+        /* 頂部 SRS 控制區 */
         .controls { 
             display: flex; 
             gap: 8px; 
@@ -192,7 +168,6 @@
 
         .card-front { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
         .card-front .word { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.5px; text-align: center; word-break: break-all; color: #ffffff; }
-        @media (min-width: 768px) { .card-front .word { font-size: 3.2rem; } }
         .card-front .hint { position: absolute; bottom: 25px; font-size: 0.8rem; color: var(--text-sub); letter-spacing: 1px; }
 
         .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
@@ -210,15 +185,11 @@
             border-bottom: 1px solid var(--border-color); 
             flex-shrink: 0; 
         }
-        @media (min-width: 768px) { .card-image-bg { height: auto; aspect-ratio: 16 / 9 !important; } }
 
         .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 18px; text-align: left; overflow-y: auto; }
-        .card-back-content::-webkit-scrollbar { width: 6px; }
-        .card-back-content::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
         .word-meta { display: flex; align-items: baseline; margin-bottom: 2px; flex-wrap: wrap; }
         .word-title { font-size: 1.6rem; font-weight: 700; margin-right: 10px; color: #ffffff; }
-        @media (min-width: 768px) { .word-title { font-size: 2rem; } }
         .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
         .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; }
 
@@ -240,8 +211,6 @@
         .speech-feedback-panel { margin-top: 10px; background-color: var(--score-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; }
         .feedback-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .score-display { font-size: 1.15rem; font-weight: 700; color: var(--accent-hard); }
-        .score-display.perfect { color: var(--accent-easy); }
-        .score-display.danger { color: var(--accent-again); }
         .feedback-label { font-size: 0.7rem; color: var(--text-sub); letter-spacing: 0.5px; }
         .user-transcript-box { font-size: 0.85rem; line-height: 1.4; color: var(--text-main); margin-bottom: 4px; }
         .ai-commentary { font-size: 0.75rem; color: var(--text-sub); font-style: italic; border-top: 1px solid #2a2a2a; padding-top: 4px; margin-top: 4px; }
@@ -256,16 +225,10 @@
 <body>
 
     <div class="directory-zone">
-        <div class="dir-row">
-            <input type="text" id="directory-url-input" class="dir-input" placeholder="請貼上『課程總目錄』的 CSV 導出連結...">
-            <button class="dir-btn" onclick="fetchDirectoryCSV()">載入目錄</button>
-        </div>
-        <div class="dir-row">
-            <span style="font-size:0.75rem; color:var(--text-sub); white-space:nowrap;">選擇當前課程：</span>
-            <select id="course-dropdown" class="course-select" onchange="handleCourseSwitch(this.value)">
-                <option value="internal_default">✨ 預設內建英文核心單字庫</option>
-            </select>
-        </div>
+        <span style="font-size:0.85rem; color:var(--text-sub); white-space:nowrap; font-weight:bold;">📚 當前內化課程：</span>
+        <select id="course-dropdown" class="course-select" onchange="handleCourseSwitch(this.value)">
+            <option value="internal_default">✨ 預設內建英文核心單字庫</option>
+        </select>
     </div>
 
     <header>
@@ -276,8 +239,8 @@
             <span class="counter" id="counter">0 / 0</span>
         </div>
         <div class="btn-group">
-            <button class="action-btn" onclick="exportCurrentCourseProgress()" title="導出當前課程進度 CSV">導出</button>
-            <button class="action-btn" onclick="clearCurrentCourseProgress()" style="color:#ff5252;" title="歸零當前課程進度">還原</button>
+            <button class="action-btn" onclick="exportCurrentCourseProgress()">導出進度</button>
+            <button class="action-btn" onclick="clearCurrentCourseProgress()" style="color:#ff5252;">清除進度</button>
         </div>
     </header>
 
@@ -346,15 +309,11 @@
     </div>
 
     <script>
+        // 🔒 固定寫死你的總目錄 CSV 網址（底層自動對接機制）
+        const MASTER_INDEX_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwcq7RkVq_FVU4iYHMLTFQW_DIRkqgaSsp1dEkEp0zYxz-saj00T-IM2Km8WbT41oFrzkUUXMqQp-j/pub?output=csv";
+
         const DEFAULT_INTERNAL_DATABASE = [
-            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 },
-            { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。", historyCount: 0 },
-            { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。", historyCount: 0 },
-            { word: "beautiful", type: "adj.", translation: "美麗的", inflection: "beautify (v.) 美化", collocation: "a beautiful scene 美麗的畫面", example_en: "The 16-bit retro style has a beautiful view.", example_ch: "16-bit 復古風格有著美麗的景致。", historyCount: 0 },
-            { word: "correct", type: "adj.", translation: "正確的", inflection: "correction (n.) 修改；糾正", collocation: "correct answer 正確答案", example_en: "Please ensure the diagnostic data is correct.", example_ch: "請確保診斷數據是正確的。", historyCount: 0 },
-            { word: "define", type: "v.", translation: "定義；界定", inflection: "definition (n.) 定義", collocation: "define the rules 定義規則", example_en: "We must define the new protocols for the system.", example_ch: "我們必須為系統定義新的協定。", historyCount: 0 },
-            { word: "different", type: "adj.", translation: "不同的", inflection: "difference (n.) 差異；不同", collocation: "be different from 與…不同", example_en: "They hold two entirely different views.", example_ch: "他們持有兩種截然不同的觀點。", historyCount: 0 },
-            { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。", historyCount: 0 }
+            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 }
         ];
 
         let currentCourseKey = "internal_default";
@@ -362,7 +321,7 @@
         let queue = [];
         let currentCard = null;
         let isFlipped = false;
-        let currentLangMode = "en-US"; // 自動感知偵測： en-US 或 zh-TW
+        let currentLangMode = "en-US"; 
         
         const synth = window.speechSynthesis;
         let recognition = null;
@@ -376,100 +335,92 @@
         const counter = document.getElementById('counter');
 
         window.addEventListener('DOMContentLoaded', () => { 
-            // 讀取先前暫存的總目錄網址
-            const savedDirUrl = localStorage.getItem('observer_directory_url');
-            if(savedDirUrl) {
-                document.getElementById('directory-url-input').value = savedDirUrl;
-                fetchDirectoryCSV(true); // 靜默加載
-            } else {
-                initEngineWithCache(); 
-            }
+            // 頁面一載入，主動在背景連線你的總目錄
+            autoFetchDirectory();
 
             document.getElementById('mic-button').addEventListener('click', (e) => { e.stopPropagation(); toggleRecording(); });
-            window.addEventListener('keydown', (e) => {
-                if (e.code === 'Space') { e.preventDefault(); flipCard(); }
-                if (isFlipped && !isRecording) {
-                    if (e.key === '1') handleSRS('again');
-                    if (e.key === '2') handleSRS('hard');
-                    if (e.key === '3') handleSRS('good');
-                    if (e.key === '4') handleSRS('easy');
-                }
-            });
         });
 
-        // 🌐 獲取課程總目錄
-        function fetchDirectoryCSV(isSilent = false) {
-            const url = document.getElementById('directory-url-input').value.trim();
-            if(!url) { if(!isSilent) alert("請輸入有效的總目錄 CSV 連結！"); return; }
-            
-            localStorage.setItem('observer_directory_url', url);
+        // 背景自動解析 Google 試算表下載格式
+        function fixGoogleSpreadsheetUrl(url) {
+            let clean = url.trim();
+            if (clean.includes("docs.google.com/spreadsheets") && !clean.includes("output=csv") && !clean.includes("format=csv")) {
+                if (clean.includes("/edit")) {
+                    clean = clean.split('/edit')[0] + "/export?format=csv";
+                } else if (clean.endsWith("/")) {
+                    clean = clean + "export?format=csv";
+                } else if (!clean.includes("/export")) {
+                    clean = clean + "/export?format=csv";
+                }
+            }
+            return clean;
+        }
 
-            fetch(url)
-                .then(res => res.text())
+        // 自動化：抓取寫死在底層的總目錄表
+        function autoFetchDirectory() {
+            fetch(MASTER_INDEX_URL)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.text();
+                })
                 .then(text => {
+                    if (text.includes("<!DOCTYPE html") || text.includes("login.google.com")) {
+                        throw new Error("權限問題");
+                    }
                     const lines = text.replace(/\r/g, '').split('\n');
                     const dropdown = document.getElementById('course-dropdown');
-                    
-                    // 清空除了內建之外的選項
                     dropdown.innerHTML = '<option value="internal_default">✨ 預設內建英文核心單字庫</option>';
                     
-                    let loadedCount = 0;
                     for(let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim(); if(!line) continue;
                         const parts = parseCSVLine(line);
                         if(parts.length >= 2) {
                             const option = document.createElement('option');
-                            option.value = parts[1].trim(); // csv_url
-                            option.textContent = parts[0].trim(); // course_name
+                            option.value = fixGoogleSpreadsheetUrl(parts[1].trim()); // 自動修正子課程網址
+                            option.textContent = parts[0].trim(); 
                             dropdown.appendChild(option);
-                            loadedCount++;
                         }
                     }
                     
-                    // 恢復先前選中的課程
+                    // 自動回復上一次學習的選單位置
                     const lastCourse = localStorage.getItem('observer_last_course_key');
                     if(lastCourse && dropdown.querySelector(`option[value="${lastCourse}"]`)) {
                         dropdown.value = lastCourse;
                         currentCourseKey = lastCourse;
                     }
 
-                    if(!isSilent) alert(`🎯 總目錄同步成功！共載入 ${loadedCount} 門外部雲端課程。`);
                     initEngineWithCache();
                 })
                 .catch(err => {
-                    console.error(err);
-                    if(!isSilent) alert("讀取總目錄失敗，請確認該 Google 試算表已開啟『知道連結的所有人填寫/檢視』並發佈為 CSV。");
+                    console.log("自動同步目錄受阻，切換回快取數據模式。");
                     initEngineWithCache();
                 });
         }
 
-        // 切換課程
         function handleCourseSwitch(value) {
             currentCourseKey = value;
             localStorage.setItem('observer_last_course_key', value);
             initEngineWithCache();
         }
 
-        // 初始化當前精選課的核心引擎
         function initEngineWithCache() {
             if(currentCourseKey === "internal_default") {
                 loadCardsData(DEFAULT_INTERNAL_DATABASE, "internal_default");
             } else {
-                // 從網路拉取該課程 CSV
                 fetch(currentCourseKey)
-                    .then(res => res.text())
+                    .then(res => {
+                        if(!res.ok) throw new Error();
+                        return res.text();
+                    })
                     .then(text => {
+                        if (text.includes("<!DOCTYPE html")) throw new Error();
                         const cards = parseCourseCSV(text);
-                        if(cards.length === 0) {
-                            alert("該課程解析出 0 條資料，切回預設字庫。");
-                            handleCourseSwitch("internal_default");
-                            return;
-                        }
+                        if(cards.length === 0) throw new Error();
                         loadCardsData(cards, currentCourseKey);
                     })
                     .catch(err => {
-                        alert("遠端課程內容讀取失敗，為你載入本機快取或預設內容。");
-                        loadCardsData(DEFAULT_INTERNAL_DATABASE, "internal_default");
+                        alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行(第1列)是否已經改成乾淨的純英文(word, type, translation 等)，且有開啟發布到網路。");
+                        handleCourseSwitch("internal_default");
                     });
             }
         }
@@ -477,7 +428,6 @@
         function loadCardsData(baseCards, storageSuffix) {
             const cacheKey_queue = `srs_queue_${btoa(storageSuffix).substring(0,20)}`;
             const cacheKey_orig = `srs_orig_${btoa(storageSuffix).substring(0,20)}`;
-            
             const cachedQueue = localStorage.getItem(cacheKey_queue);
             const cachedOriginal = localStorage.getItem(cacheKey_orig);
             
@@ -498,9 +448,7 @@
             }
         }
 
-        // 🧠 自動感知與優雅換標籤機制
         function detectLanguageAndAdjustUI(card) {
-            // 偵測 example_en 欄位是否包含大量中文
             const chineseRegex = /[\u4e00-\u9fa5]/;
             if (chineseRegex.test(card.example_en) || chineseRegex.test(card.word)) {
                 currentLangMode = "zh-TW";
@@ -513,8 +461,6 @@
                 document.getElementById('label-collocation').textContent = "【搭配詞】";
                 document.getElementById('label-challenge').textContent = "【例句口說挑戰】";
             }
-            
-            // 初始化語音辨識語系
             if(recognition) { recognition.lang = currentLangMode; }
         }
 
@@ -522,10 +468,7 @@
             if (queue.length === 0) { showCompletion(); return; }
             isFlipped = false; flashcard.classList.remove('flipped'); controls.classList.remove('visible');
             document.getElementById('feedback-panel').classList.add('hidden');
-
             currentCard = queue[0];
-            
-            // 自動偵測並優雅切換標籤與語系
             detectLanguageAndAdjustUI(currentCard);
 
             document.getElementById('front-word').textContent = currentCard.word;
@@ -536,7 +479,6 @@
             document.getElementById('back-collocation').textContent = currentCard.collocation;
             document.getElementById('back-example-en').textContent = currentCard.example_en;
             document.getElementById('back-example-ch').textContent = currentCard.example_ch || '';
-
             document.querySelector('.card-back-content').scrollTop = 0;
             updateCardImage(currentCard.word);
         }
@@ -551,22 +493,16 @@
             try {
                 synth.cancel(); 
                 const utterWord = new SpeechSynthesisUtterance(currentCard.word); 
-                utterWord.lang = currentLangMode; 
-                utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
-
+                utterWord.lang = currentLangMode; utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
                 const utterExample = new SpeechSynthesisUtterance(currentCard.example_en); 
-                utterExample.lang = currentLangMode; 
-                utterExample.rate = currentLangMode === "zh-TW" ? 1.0 : 0.95;
-
-                synth.speak(utterWord); 
-                synth.speak(utterExample);
-            } catch(e) { console.log("TTS中斷"); }
+                utterExample.lang = currentLangMode; utterExample.rate = currentLangMode === "zh-TW" ? 1.0 : 0.95;
+                synth.speak(utterWord); synth.speak(utterExample);
+            } catch(e) {}
         }
 
         function handleSRS(level) {
-            if (!isFlipped || isRecording) return;
+            if (!isFlipped) return;
             const card = queue.shift(); 
-
             if (level === 'again') { card.historyCount = (card.historyCount || 0) + 1; queue.splice(1, 0, card); } 
             else if (level === 'hard') { card.historyCount = (card.historyCount || 0) + 0.5; const idx = Math.max(2, Math.floor(queue.length / 3)); queue.splice(idx, 0, card); } 
             else if (level === 'good') { card.historyCount = (card.historyCount || 0) - 0.2; const idx = Math.max(1, Math.floor(queue.length * 0.8)); queue.splice(idx, 0, card); } 
@@ -574,72 +510,12 @@
                 const master = originalCards.find(c => c.word === card.word);
                 if(master) master.historyCount = 99; 
             }
-
             const suffix = btoa(currentCourseKey).substring(0,20);
             localStorage.setItem(`srs_queue_${suffix}`, JSON.stringify(queue));
             localStorage.setItem(`srs_orig_${suffix}`, JSON.stringify(originalCards));
-
-            updateProgress();
-            showNextCard();
+            updateProgress(); showNextCard();
         }
 
-        function toggleRecording() {
-            if (!recognition) { alert("此裝置或瀏覽器不支援語音辨識。"); return; }
-            if (isRecording) { recognition.stop(); } else { recognition.start(); }
-        }
-
-        function evaluateSpeech(userText) {
-            // 根據中英文採取不同的斷句拆解比對演算法
-            const cleanText = (str) => {
-                if(currentLangMode === "zh-TW") {
-                    return str.replace(/[，。？、！『』「」🛠️🎯📖🔄🎙️📝\s]/g, "").split("");
-                } else {
-                    return str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").split(/\s+/).filter(Boolean);
-                }
-            };
-
-            const targetWords = cleanText(currentCard.example_en); 
-            const userWords = cleanText(userText);
-            
-            let score = 10.0; 
-            const perWordValue = targetWords.length > 0 ? (10.0 / targetWords.length) : 10;
-            const feedbackContainer = document.getElementById('visual-transcript'); 
-            feedbackContainer.innerHTML = '';
-            
-            let htmlOutput = []; 
-            let userIdx = 0;
-
-            for (let i = 0; i < targetWords.length; i++) {
-                const target = targetWords[i]; 
-                const user = userWords[userIdx];
-                if (!user) { htmlOutput.push(`<span style="color:#ff5252; opacity:0.6;">${target}</span>`); score -= perWordValue; continue; }
-                if (target === user) { htmlOutput.push(`<span style="color:#69f0ae;">${target}</span>`); userIdx++; } 
-                else {
-                    htmlOutput.push(`<span style="color:#ff5252;" title="預期: ${target}">${user}</span>`); 
-                    score -= perWordValue;
-                    userIdx++;
-                }
-            }
-
-            score = Math.max(0, Math.min(10, score));
-            const scoreTextEl = document.getElementById('score-text'); 
-            const aiCommentEl = document.getElementById('ai-comment');
-            
-            if (score >= 8.5) { scoreTextEl.className = "score-display perfect"; aiCommentEl.textContent = "內化程度極高！複述極為精準。"; } 
-            else if (score >= 6.0) { scoreTextEl.className = "score-display"; aiCommentEl.textContent = "大致通順，部分細節核心字漏失。"; } 
-            else { scoreTextEl.className = "score-display danger"; aiCommentEl.textContent = "偏離幅度較大，建議再次閱讀故事。"; }
-
-            document.getElementById('score-text').textContent = `${score.toFixed(1)} / 10分`;
-            feedbackContainer.innerHTML = htmlOutput.join(currentLangMode === "zh-TW" ? "" : " "); 
-            document.getElementById('feedback-panel').classList.remove('hidden');
-            
-            setTimeout(() => {
-                const scrollBox = document.querySelector('.card-back-content');
-                scrollBox.scrollTop = scrollBox.scrollHeight;
-            }, 50);
-        }
-
-        // CSV 解析工具
         function parseCourseCSV(text) {
             const lines = text.replace(/\r/g, '').split('\n');
             let importedData = [];
@@ -670,44 +546,13 @@
         }
 
         function updateProgress() {
-            const total = originalCards.length;
-            const currentLeft = queue.length;
+            const total = originalCards.length; const currentLeft = queue.length;
             progressBar.style.width = `${total > 0 ? ((total - currentLeft) / total) * 100 : 0}%`;
             counter.textContent = `${currentLeft} / ${total}`;
         }
-
         function showCompletion() { learningStage.classList.add('hidden'); completionScreen.classList.remove('hidden'); }
-        
-        function resetEngine() { 
-            queue = originalCards.map(c => { if(c.historyCount == 99) c.historyCount = 0; return c; });
-            const suffix = btoa(currentCourseKey).substring(0,20);
-            localStorage.setItem(`srs_queue_${suffix}`, JSON.stringify(queue));
-            initEngineWithCache();
-        }
-
-        function clearCurrentCourseProgress() { 
-            if(confirm("確定歸零清除當前課程的記憶進度？")) { 
-                const suffix = btoa(currentCourseKey).substring(0,20);
-                localStorage.removeItem(`srs_queue_${suffix}`); 
-                localStorage.removeItem(`srs_orig_${suffix}`); 
-                initEngineWithCache(); 
-            } 
-        }
-
-        function exportCurrentCourseProgress() {
-            let csvContent = "\uFEFFword,type,translation,inflection,collocation,example_en,example_ch,historyCount\n";
-            originalCards.forEach(c => {
-                let row = [c.word, c.type, c.translation, c.inflection.replace(/\n/g, '\\n'), c.collocation.replace(/\n/g, '\\n'), c.example_en, c.example_ch, c.historyCount || 0];
-                let escapedRow = row.map(v => `"${String(v).replace(/"/g, '""')}"`);
-                csvContent += escapedRow.join(",") + "\n";
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `progress_export_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
-        
+        function resetEngine() { queue = originalCards.map(c => { if(c.historyCount == 99) c.historyCount = 0; return c; }); initEngineWithCache(); }
+        function clearCurrentCourseProgress() { if(confirm("確定歸零清除當前課程的記憶進度？")) { const suffix = btoa(currentCourseKey).substring(0,20); localStorage.removeItem(`srs_queue_${suffix}`); localStorage.removeItem(`srs_orig_${suffix}`); initEngineWithCache(); } }
         function updateCardImage(word) { document.getElementById('card-image').style.backgroundImage = `url('./${word.toLowerCase()}.jpg')`; }
     </script>
 </body>
