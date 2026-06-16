@@ -33,7 +33,124 @@
             padding: 10px 12px 20px 12px; 
         }
 
-        /* 🌐 頂部課程切換控制區（已隱藏手動輸入框，只留下純粹的課程下拉選單） */
+        /* 📜 核心升級：使用者說明書遮罩層樣式 */
+        #manual-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(10, 10, 10, 0.98);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .manual-container {
+            background: #161616;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 680px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .manual-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #222;
+            text-align: left;
+        }
+        .manual-header h1 {
+            font-size: 1.4rem;
+            color: var(--accent-hard);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .manual-header p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+        .manual-content {
+            padding: 24px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .manual-section {
+            margin-bottom: 24px;
+        }
+        .manual-section h2 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--accent-good);
+            padding-left: 8px;
+        }
+        .manual-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.8rem;
+        }
+        .manual-table th, .manual-table td {
+            border: 1px solid #2a2a2a;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .manual-table th {
+            background: #222;
+            color: var(--text-sub);
+        }
+        .code-block {
+            background: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #a5d6a7;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .flow-step {
+            margin-bottom: 8px;
+            padding-left: 14px;
+            position: relative;
+        }
+        .flow-step::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-easy);
+        }
+        .manual-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #222;
+            display: flex;
+            justify-content: flex-end;
+            background: #1a1a1a;
+            border-radius: 0 0 16px 16px;
+        }
+        .enter-palace-btn {
+            background: var(--accent-good);
+            color: #121212;
+            border: none;
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .enter-palace-btn:hover {
+            background: var(--accent-easy);
+            box-shadow: 0 0 15px rgba(105, 240, 174, 0.4);
+        }
+
+        /* 🌐 頂部課程切換控制區 */
         .directory-zone {
             width: 100%;
             max-width: 620px;
@@ -185,7 +302,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* ✨ 新增：卡片專屬的隨手聽重複發音小按鈕樣式 */
+        /* 重複發音按鈕樣式 */
         .card-speaker-btn {
             background: #252525;
             border: 1px solid #444;
@@ -202,7 +319,6 @@
             background: #333;
             border-color: var(--accent-easy);
         }
-        /* 正面大喇叭按鈕位置偏中間下方 */
         .front-speaker-box {
             margin-top: 20px;
             z-index: 15;
@@ -262,6 +378,75 @@
     </style>
 </head>
 <body>
+
+    <div id="manual-overlay">
+        <div class="manual-container">
+            <div class="manual-header">
+                <h1>AI 科學記憶永久宮殿 — 系統操作運作說明書</h1>
+                <p>解構未知的真相，建立高精度的語言與思維內化階梯</p>
+            </div>
+            <div class="manual-content">
+                
+                <div class="manual-section">
+                    <h2>一、 數據底層：Google 試算表第 1 列欄位定義</h2>
+                    <p>子課程試算表必須嚴格遵循 10 欄位純英文標頭（A1 到 J1 欄），確保資料流精準映射：</p>
+                    <table class="manual-table">
+                        <thead>
+                            <tr>
+                                <th>儲存格</th>
+                                <th>欄位名稱</th>
+                                <th>承載數據意義（語音發音純淨度規範）</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A1</td><td><code>word</code></td><td>卡片正面主要單字 / 故障代碼（純英文，發音）</td></tr>
+                            <tr><td>B1</td><td><code>type</code></td><td>詞性屬性（例如 v., n., phr.）</td></tr>
+                            <tr><td>C1</td><td><code>level</code></td><td>難易度級別（精準映射 CEFR：A1 ~ C2）</td></tr>
+                            <tr><td>D1</td><td><code>translation</code></td><td>核心中文定義摘要（純視覺呈現，不發音）</td></tr>
+                            <tr><td>E1</td><td><code>inflection</code></td><td>詞性衍生變化 / 近義詞（純英文，不發音）</td></tr>
+                            <tr><td>F1</td><td><code>collocation</code></td><td>道地常用搭配詞組合（純英文，不發音）</td></tr>
+                            <tr><td>G1</td><td><code>phr</code></td><td>核心高頻生活或職場相關片語（純英文，發音）</td></tr>
+                            <tr><td>H1</td><td><code>example_en</code></td><td>符合朗文 3000 字的核心常用例句（純英文，發音）</td></tr>
+                            <tr><td>I1</td><td><code>example_ch</code></td><td>例句中文翻譯（純視覺呈現，不發音）</td></tr>
+                            <tr><td>J1</td><td><code>historyCount</code></td><td>SRS 演算法記憶權重計數（固定輸出 0）</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="manual-section">
+                    <h2>二、 生成代碼：Gemini 10欄位精密控制版指令鑰匙</h2>
+                    <p>往後向 Gemini 生成新課程數據時，請完整複製以下封裝好的通訊密碼：</p>
+                    <div class="code-block">📋 往後請直接複製這段「新指令鑰匙」對我說：
+請幫我將以下英文單字製作成永久宮殿的專用 TSV 格式。
+
+【嚴格遵循規則】：
+1. 欄位順序必須為：word [tab] type [tab] level [tab] translation [tab] inflection [tab] collocation [tab] phr [tab] example_en [tab] example_ch [tab] historyCount。
+2. 請使用 Tab 鍵（\t） 作為欄位分隔符號，不要使用引號。
+3. level 欄位請根據該字在「朗文 3000 字」中的難易度，精準標註為 A1, A2, B1, B2, C1, C2 其中之一。
+4. 【語音純淨度限制】：為了防止語音朗讀出錯，word、inflection、collocation、phr、example_en 這五個發音欄位內部「嚴格禁止出現任何中文字」，必須全部都是純英文。
+5. 【片語欄位優化】：phr 欄位請輸出 1-2 組與該主要單字最常用、最核心的生活或職場相關片語（複數片語用 \n 換行）。
+6. 【關鍵修正】：example_en 的英文例句與用字，必須嚴格符合「朗文 3000 字」的常用核心語境與生活 / 職場句型，確保文法結構道地、清晰且易於複述口說。
+7. 多行文字內部換行請使用 \n 代替。
+8. historyCount 固定輸出 0。
+
+【單字清單】：
+（在此貼上想生成的單字）</div>
+                </div>
+
+                <div class="manual-section">
+                    <h2>三、 自動化工作流 (SOP Workflow)</h2>
+                    <div class="flow-step"><strong>1. 資料封裝：</strong> 在備忘錄複製上述「新指令鑰匙」，交給 Gemini 產出純淨的 10 欄位 TSV 資料塊。</div>
+                    <div class="flow-step"><strong>2. 雲端同步：</strong> 將 TSV 數據以 <code>Ctrl+V</code> 貼入已發布到網路的子 Google 試算表中。</div>
+                    <div class="flow-step"><strong>3. 宮殿解構：</strong> 打開此網頁，底層解析引擎會自動讀取總目錄、拉取子課程，將資料無痛歸位。</div>
+                    <div class="flow-step"><strong>4. 聽覺沉澱：</strong> 正面盲聽單字 ➡️ 翻面聆聽片語與例句 ➡️ 進行口說錄音對齊，排除雜音干擾。</div>
+                </div>
+
+            </div>
+            <div class="manual-footer">
+                <button class="enter-palace-btn" onclick="closeManualAndStart()">已確認底層邏輯 • 進入宮殿 ➡️</button>
+            </div>
+        </div>
+    </div>
 
     <div class="directory-zone">
         <span style="font-size:0.85rem; color:var(--text-sub); white-space:nowrap; font-weight:bold;">📚 當前內化課程：</span>
@@ -358,10 +543,8 @@
     </div>
 
     <script>
-        // 🔒 固定寫死你的總目錄 CSV 網址（底層自動對接機制）
         const MASTER_INDEX_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwcq7RkVq_FVU4iYHMLTFQW_DIRkqgaSsp1dEkEp0zYxz-saj00T-IM2Km8WbT41oFrzkUUXMqQp-j/pub?output=csv";
 
-        // 預設內建庫同步擴展為 10 欄位格式以防錯位
         const DEFAULT_INTERNAL_DATABASE = [
             { word: "ability", type: "n.", level: "A2", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to", phr: "ability to do sth.", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 }
         ];
@@ -384,14 +567,17 @@
         const progressBar = document.getElementById('progress-bar');
         const counter = document.getElementById('counter');
 
-        window.addEventListener('DOMContentLoaded', () => { 
-            // 頁面一載入，主動在背景連線你的總目錄
-            autoFetchDirectory();
+        // 📜 新增：關閉說明書遮罩並觸發後台課程加載
+        function closeManualAndStart() {
+            document.getElementById('manual-overlay').style.display = 'none';
+            autoFetchDirectory(); // 關閉後才去連線加載數據，避免時序混亂
+        }
 
+        window.addEventListener('DOMContentLoaded', () => { 
+            // 頁面初次載入，只綁定錄音按鈕，等使用者點擊說明書的按鈕後，才啟動後台數據加載
             document.getElementById('mic-button').addEventListener('click', (e) => { e.stopPropagation(); toggleRecording(); });
         });
 
-        // 背景自動解析 Google 試算表下載格式
         function fixGoogleSpreadsheetUrl(url) {
             let clean = url.trim();
             if (clean.includes("docs.google.com/spreadsheets") && !clean.includes("output=csv") && !clean.includes("format=csv")) {
@@ -406,7 +592,6 @@
             return clean;
         }
 
-        // 自動化：抓取寫死在底層的總目錄表
         function autoFetchDirectory() {
             fetch(MASTER_INDEX_URL)
                 .then(res => {
@@ -426,13 +611,12 @@
                         const parts = parseCSVLine(line);
                         if(parts.length >= 2) {
                             const option = document.createElement('option');
-                            option.value = fixGoogleSpreadsheetUrl(parts[1].trim()); // 自動修正子課程網址
+                            option.value = fixGoogleSpreadsheetUrl(parts[1].trim()); 
                             option.textContent = parts[0].trim(); 
                             dropdown.appendChild(option);
                         }
                     }
                     
-                    // 自動回復上一次學習的選單位置
                     const lastCourse = localStorage.getItem('observer_last_course_key');
                     if(lastCourse && dropdown.querySelector(`option[value="${lastCourse}"]`)) {
                         dropdown.value = lastCourse;
@@ -469,7 +653,7 @@
                         loadCardsData(cards, currentCourseKey);
                     })
                     .catch(err => {
-                        alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行(第1列)是否已經改成 10 欄位純英文(word, type, level, translation 等)，且有開啟發布到網路。");
+                        alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行是否已改為 10 欄位格式並發布到網路。");
                         handleCourseSwitch("internal_default");
                     });
             }
@@ -523,7 +707,6 @@
             currentCard = queue[0];
             detectLanguageAndAdjustUI(currentCard);
 
-            // 寫入更新後的 10 欄位對應內容
             document.getElementById('front-level').textContent = currentCard.level || '-';
             document.getElementById('front-word').textContent = currentCard.word;
             document.getElementById('back-word').textContent = currentCard.word;
@@ -544,18 +727,14 @@
             speakCard();
         }
 
-        // 🔊 高精密發音時機控制：杜絕任何中文混入發音
         function speakCard() {
             try {
                 synth.cancel(); 
-                
-                // 1. 先發音主要單字
                 const utterWord = new SpeechSynthesisUtterance(currentCard.word); 
                 utterWord.lang = currentLangMode; 
                 utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
                 synth.speak(utterWord); 
 
-                // 2. 如果是英文模式，接著讀取【核心片語】與【生活例句】
                 if (currentLangMode === "en-US") {
                     const phrText = currentCard.phr ? currentCard.phr.replace(/\\n/g, " ") : "";
                     const exText = currentCard.example_en ? currentCard.example_en.replace(/\\n/g, " ") : "";
@@ -576,19 +755,16 @@
             } catch(e) {}
         }
 
-        // ✨ 供外部按鈕隨時重播的精密發音控制函數
         function replayAudio() {
             if (!currentCard) return;
             try {
                 synth.cancel();
                 if (!isFlipped) {
-                    // 正面時：只重播單字本身
                     const utterWord = new SpeechSynthesisUtterance(currentCard.word);
                     utterWord.lang = currentLangMode;
                     utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
                     synth.speak(utterWord);
                 } else {
-                    // 背面時：直接重播完整的組合音訊
                     speakCard();
                 }
             } catch(e) {}
@@ -610,7 +786,6 @@
             updateProgress(); showNextCard();
         }
 
-        // 🛠️ 10 欄位精密數據映射解析核心
         function parseCourseCSV(text) {
             const lines = text.replace(/\r/g, '').split('\n');
             let importedData = [];
