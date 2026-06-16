@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 科學記憶永久宮殿 — 深度觀察者</title>
+    <title>AI 科學記憶永久 — 深度觀察者</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -302,7 +302,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* 重複發音按鈕樣式 */
+        /* 🔊 新重聽按鈕通用基礎樣式 */
         .card-speaker-btn {
             background: #252525;
             border: 1px solid #444;
@@ -321,12 +321,9 @@
             background: #333;
             border-color: var(--accent-easy);
         }
-        .front-speaker-box {
-            margin-top: 20px;
-            z-index: 15;
-        }
+        .front-speaker-box { margin-top: 20px; z-index: 15; }
 
-        /* 網路絕對路徑 WebP 封面的排版區域 */
+        /* 初始狀態網址絕對路徑封面圖片容器 */
         .card-top-cover {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -338,11 +335,7 @@
             align-items: center;
             overflow: hidden;
         }
-        .card-top-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; 
-        }
+        .card-top-cover img { width: 100%; height: 100%; object-fit: contain; }
 
         .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
         
@@ -360,9 +353,9 @@
             flex-shrink: 0; 
         }
 
-        /* 🔒 核心升級：將背面容器設為相對定位基準，以利右側按鈕精準錨定 */
+        /* 🔒 鎖定背面為坐標基準原點 */
         .card-back-content { 
-            position: relative; /* 關鍵：做為絕對定位的坐標原點 */
+            position: relative; 
             width: 100%; 
             flex-grow: 1; 
             display: flex; 
@@ -373,24 +366,24 @@
             overflow-y: auto; 
         }
 
-        /* 🔒 核心升級：重構單字與詞性區塊，保留左側最大安全通道 */
+        /* 🔒 單字欄：右側留出 115px 絕對防禦邊界，防止文字擠壓到按鈕 */
         .word-meta { 
             display: flex; 
             align-items: baseline; 
             margin-bottom: 4px; 
             flex-wrap: wrap; 
-            padding-right: 115px; /* 重要：在右側留出 115px 的護城河防線，文字絕不會推擠到按鈕 */
+            padding-right: 115px; 
             width: 100%;
         }
         .word-title { font-size: 1.6rem; font-weight: 700; margin-right: 10px; color: #ffffff; word-break: break-all; }
         .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
         
-        /* 🔒 核心升級：強制將背面重聽按鈕進行右側絕對定位鎖定 */
+        /* 🔒 手機端極致靠右鎖定：依據你的紅框指示，將重聽按鈕以絕對定位死死鎖在右上方 */
         .back-speaker-position {
             position: absolute;
-            top: 14px;      /* 完美對齊 padding 的上邊界 */
-            right: 18px;    /* 完美對齊 padding 的右邊界，實現極致靠右 */
-            z-index: 99;    /* 確保置頂於所有視覺層之上，防範任何覆蓋 */
+            top: 14px;      
+            right: 18px;    
+            z-index: 99;    
         }
 
         .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; padding-right: 115px; }
@@ -429,13 +422,13 @@
     <div id="manual-overlay">
         <div class="manual-container">
             <div class="manual-header">
-                <h1>AI 科學記憶永久宮殿 — 系統操作運作說明書</h1>
+                <h1>AI 科學記憶永久 — 系統操作運作說明書</h1>
                 <p>解構未知的真相，建立高精度的語言與思維內化階梯</p>
             </div>
             <div class="manual-content">
                 
                 <div class="manual-section">
-                    <h2>二、 數據底層：Google 試算表第 1 列欄位定義</h2>
+                    <h2>一、 數據底層：Google 試算表第 1 列欄位定義</h2>
                     <p>子課程試算表必須嚴格遵循 10 欄位純英文標頭（A1 到 J1 欄），確保資料流精準映射：</p>
                     <table class="manual-table">
                         <thead>
@@ -850,6 +843,7 @@
             updateProgress(); showNextCard();
         }
 
+        // 🛠️ 10 欄位精密數據映射解析核心
         function parseCourseCSV(text) {
             const lines = text.replace(/\r/g, '').split('\n');
             let importedData = [];
@@ -857,6 +851,7 @@
                 let line = lines[i].trim(); if (!line) continue;
                 let row = parseCSVLine(line);
                 
+                // 擴展映射索引，確保 level 與 phr 完美定位
                 if (row.length >= 8) {
                     importedData.push({
                         word:         row[0] ? row[0].trim() : '', 
