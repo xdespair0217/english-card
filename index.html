@@ -33,7 +33,7 @@
             padding: 10px 12px 20px 12px; 
         }
 
-        /* 📜 核心升級：使用者說明書遮罩層樣式 */
+        /* 📜 使用者說明書遮罩層樣式 */
         #manual-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -307,13 +307,15 @@
             background: #252525;
             border: 1px solid #444;
             color: var(--accent-easy);
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
             outline: none;
             transition: all 0.2s ease;
+            white-space: nowrap; 
+            flex-shrink: 0;       
         }
         .card-speaker-btn:hover {
             background: #333;
@@ -322,6 +324,19 @@
         .front-speaker-box {
             margin-top: 20px;
             z-index: 15;
+        }
+
+        /* ✨ 新增：未選課程時的初始主視覺圖片專用排版區域 */
+        .card-top-cover {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('./Top.jpg'); /* 🔒 鎖定讀取同目錄下的 Top.jpg */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #121212;
+            z-index: 50; /* 覆蓋在正背面之上 */
+            border-radius: 16px;
         }
 
         .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
@@ -342,9 +357,18 @@
 
         .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 18px; text-align: left; overflow-y: auto; }
 
-        .word-meta { display: flex; align-items: center; margin-bottom: 2px; flex-wrap: wrap; justify-content: space-between; width: 100%; }
-        .meta-left { display: flex; align-items: baseline; }
-        .word-title { font-size: 1.6rem; font-weight: 700; margin-right: 10px; color: #ffffff; }
+        /* 彈性單字標頭整合區 */
+        .word-meta { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 6px; 
+            flex-wrap: wrap; 
+            justify-content: space-between; 
+            width: 100%; 
+            gap: 10px; 
+        }
+        .meta-left { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; }
+        .word-title { font-size: 1.6rem; font-weight: 700; color: #ffffff; word-break: break-all; }
         .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
         .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; }
 
@@ -375,6 +399,12 @@
         .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
         .file-upload-btn { background: #252525; border: 1px solid #444; color: var(--text-main); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         .hidden { display: none !important; }
+
+        /* 行動端極致優化 CSS 補丁 */
+        @media (max-width: 480px) { 
+            .word-meta { flex-direction: column; align-items: flex-start; gap: 8px; } 
+            .card-speaker-btn { align-self: flex-start; } 
+        }
     </style>
 </head>
 <body>
@@ -451,7 +481,7 @@
     <div class="directory-zone">
         <span style="font-size:0.85rem; color:var(--text-sub); white-space:nowrap; font-weight:bold;">📚 當前內化課程：</span>
         <select id="course-dropdown" class="course-select" onchange="handleCourseSwitch(this.value)">
-            <option value="internal_default">✨ 預設內建英文核心單字庫</option>
+            <option value="none_selected">🔍 請由上方選擇雲端課程...</option>
         </select>
     </div>
 
@@ -479,6 +509,9 @@
 
         <div class="stage" id="card-stage" onclick="flipCard()">
             <div class="card" id="flashcard">
+                
+                <div id="initial-top-cover" class="card-top-cover"></div>
+
                 <div class="card-face card-front">
                     <div class="card-level-badge" id="front-level">-</div>
                     <div class="word" id="front-word">-</div>
@@ -545,11 +578,9 @@
     <script>
         const MASTER_INDEX_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwcq7RkVq_FVU4iYHMLTFQW_DIRkqgaSsp1dEkEp0zYxz-saj00T-IM2Km8WbT41oFrzkUUXMqQp-j/pub?output=csv";
 
-        const DEFAULT_INTERNAL_DATABASE = [
-            { word: "ability", type: "n.", level: "A2", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to", phr: "ability to do sth.", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 }
-        ];
+        const DEFAULT_INTERNAL_DATABASE = [];
 
-        let currentCourseKey = "internal_default";
+        let currentCourseKey = "none_selected";
         let originalCards = [];
         let queue = [];
         let currentCard = null;
@@ -567,14 +598,12 @@
         const progressBar = document.getElementById('progress-bar');
         const counter = document.getElementById('counter');
 
-        // 📜 新增：關閉說明書遮罩並觸發後台課程加載
         function closeManualAndStart() {
             document.getElementById('manual-overlay').style.display = 'none';
-            autoFetchDirectory(); // 關閉後才去連線加載數據，避免時序混亂
+            autoFetchDirectory(); 
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
-            // 頁面初次載入，只綁定錄音按鈕，等使用者點擊說明書的按鈕後，才啟動後台數據加載
             document.getElementById('mic-button').addEventListener('click', (e) => { e.stopPropagation(); toggleRecording(); });
         });
 
@@ -604,7 +633,7 @@
                     }
                     const lines = text.replace(/\r/g, '').split('\n');
                     const dropdown = document.getElementById('course-dropdown');
-                    dropdown.innerHTML = '<option value="internal_default">✨ 預設內建英文核心單字庫</option>';
+                    dropdown.innerHTML = '<option value="none_selected">🔍 請由上方選擇雲端課程...</option>';
                     
                     for(let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim(); if(!line) continue;
@@ -621,42 +650,45 @@
                     if(lastCourse && dropdown.querySelector(`option[value="${lastCourse}"]`)) {
                         dropdown.value = lastCourse;
                         currentCourseKey = lastCourse;
+                        initEngineWithCache();
                     }
-
-                    initEngineWithCache();
                 })
                 .catch(err => {
-                    console.log("自動同步目錄受阻，切換回快取數據模式。");
-                    initEngineWithCache();
+                    console.log("自動同步目錄受阻。");
                 });
         }
 
         function handleCourseSwitch(value) {
+            if (value === "none_selected") {
+                // 回歸初始狀態：顯示 Top 封面圖片，隱藏下方記憶按鈕
+                document.getElementById('initial-top-cover').style.display = 'block';
+                controls.classList.remove('visible');
+                return;
+            }
             currentCourseKey = value;
             localStorage.setItem('observer_last_course_key', value);
             initEngineWithCache();
         }
 
         function initEngineWithCache() {
-            if(currentCourseKey === "internal_default") {
-                loadCardsData(DEFAULT_INTERNAL_DATABASE, "internal_default");
-            } else {
-                fetch(currentCourseKey)
-                    .then(res => {
-                        if(!res.ok) throw new Error();
-                        return res.text();
-                    })
-                    .then(text => {
-                        if (text.includes("<!DOCTYPE html")) throw new Error();
-                        const cards = parseCourseCSV(text);
-                        if(cards.length === 0) throw new Error();
-                        loadCardsData(cards, currentCourseKey);
-                    })
-                    .catch(err => {
-                        alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行是否已改為 10 欄位格式並發布到網路。");
-                        handleCourseSwitch("internal_default");
-                    });
-            }
+            if(currentCourseKey === "none_selected") return;
+            
+            fetch(currentCourseKey)
+                .then(res => {
+                    if(!res.ok) throw new Error();
+                    return res.text();
+                })
+                .then(text => {
+                    if (text.includes("<!DOCTYPE html")) throw new Error();
+                    const cards = parseCourseCSV(text);
+                    if(cards.length === 0) throw new Error();
+                    loadCardsData(cards, currentCourseKey);
+                })
+                .catch(err => {
+                    alert("⚠️ 讀取該課程詳細內容失敗。\n請檢查子課程試算表的第一行是否已改為 10 欄位格式並發布到網路。");
+                    document.getElementById('course-dropdown').value = "none_selected";
+                    handleCourseSwitch("none_selected");
+                });
         }
 
         function loadCardsData(baseCards, storageSuffix) {
@@ -677,6 +709,10 @@
             else {
                 learningStage.classList.remove('hidden');
                 completionScreen.classList.add('hidden');
+                
+                // ✨ 核心邏輯：成功加載子課程數據後，將 Top.jpg 封面隱藏，正式亮出記憶卡片
+                document.getElementById('initial-top-cover').style.display = 'none';
+                
                 updateProgress();
                 showNextCard();
             }
@@ -722,6 +758,8 @@
         }
 
         function flipCard() {
+            // 🔒 如果當前還停留在初始封面圖狀態，點擊卡片不觸發翻面與發音
+            if (document.getElementById('initial-top-cover').style.display === 'block') return;
             if (isFlipped || !currentCard) return;
             isFlipped = true; flashcard.classList.add('flipped'); controls.classList.add('visible');
             speakCard();
