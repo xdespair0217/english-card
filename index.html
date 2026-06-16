@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 科學記憶永久宮殿 — 深度觀察者</title>
     <style>
         :root {
@@ -18,89 +18,94 @@
             --score-bg: #1a1a1a;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            height: 100dvh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start; 
             align-items: center;
             overflow: hidden;
-            padding: 76px 16px 12px 16px;
+            padding: 10px 12px 20px 12px; 
+        }
+
+        /* 🌐 頂部總目錄與課程切換控制區 */
+        .directory-zone {
+            width: 100%;
+            max-width: 620px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .dir-row { display: flex; gap: 8px; align-items: center; width: 100%; }
+        .dir-input {
+            flex: 1;
+            background: #252525;
+            border: 1px solid #444;
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .dir-btn {
+            background: #2b2b2b;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .dir-btn:hover { background: #3a3a3a; border-color: var(--text-sub); }
+        .course-select {
+            flex: 1;
+            background: #252525;
+            border: 1px solid #444;
+            color: #ffd740;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
         }
 
         header {
-            position: absolute;
-            top: 16px;
             width: 100%;
-            padding: 0 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .header-top-row {
+            max-width: 620px;
+            padding: 4px 4px 8px 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            gap: 8px;
+            z-index: 10;
+            flex-shrink: 0;
+            border-bottom: 1px solid #222;
         }
-
-        /* 自動生成下拉選單樣式 */
-        .course-select {
-            background: #1e1e1e;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 6px 28px 6px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            outline: none;
-            cursor: pointer;
-            flex-grow: 1;
-            max-width: 70%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0a0a0'><path d='M4 6l4 4 4-4z'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-        }
-        .course-select:focus { border-color: var(--accent-good); }
-
-        .reset-storage-btn {
-            background: transparent;
-            border: 1px solid #444;
-            color: #888;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-        .reset-storage-btn:hover { color: var(--accent-again); border-color: var(--accent-again); }
 
         .progress-container {
             flex-grow: 1;
-            max-width: 70%;
+            max-width: 180px; 
             background: #2a2a2a;
             height: 6px;
             border-radius: 3px;
             overflow: hidden;
             margin-right: 12px;
         }
+        @media (min-width: 768px) { .progress-container { max-width: 320px; } }
 
         .progress-bar {
             height: 100%;
@@ -109,340 +114,205 @@
             transition: width 0.3s ease;
         }
 
-        .counter {
-            font-size: 0.8rem;
-            color: var(--text-sub);
-            min-width: 50px;
-            white-space: nowrap;
-        }
+        .counter { font-size: 0.8rem; color: var(--text-sub); min-width: 50px; }
+        .btn-group { display: flex; gap: 6px; align-items: center; }
 
-        .status-tag {
-            font-size: 0.72rem;
-            color: #69f0ae;
-            border: 1px solid #2a4a3a;
-            padding: 3px 8px;
-            border-radius: 12px;
-            background: rgba(105, 240, 174, 0.05);
-            white-space: nowrap;
-        }
-
-        #learning-stage {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            flex-grow: 1;
-            justify-content: center;
-            gap: 12px;
-            min-height: 0;
-        }
-
-        .stage {
-            perspective: 1000px;
-            width: 100%;
-            max-width: 480px;
-            height: 62vh; 
-            max-height: 580px;
-            min-height: 380px;
-            cursor: pointer;
-        }
-
-        .card {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .card.flipped { transform: rotateY(180deg); }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            overflow: hidden;
-        }
-
-        .card-front {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-        }
-
-        .card-front .word {
-            font-size: clamp(2.0rem, 7.5vw, 3.2rem);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .card-front .hint {
-            position: absolute;
-            bottom: 20px;
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            letter-spacing: 1px;
-        }
-
-        .card-back {
-            transform: rotateY(180deg);
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 0 !important;
-        }
-
-        .card-image-bg {
-            width: 100% !important;
-            aspect-ratio: 16 / 9 !important;
-            opacity: 1.0;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            pointer-events: none;
-            background-color: #0d0d0d;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-
-        .card-back-content {
-            width: 100%;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            padding: 16px 20px;
-            text-align: left;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .card-back-content::-webkit-scrollbar { width: 4px; }
-        .card-back-content::-webkit-scrollbar-track { background: transparent; }
-        .card-back-content::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
-
-        .word-meta {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 2px;
-            flex-wrap: wrap;
-        }
-
-        .word-title {
-            font-size: clamp(1.4rem, 5vw, 2rem);
-            font-weight: 700;
-            margin-right: 8px;
-            color: #ffffff;
-        }
-
-        .word-type {
-            font-style: italic;
-            color: var(--text-sub);
-            font-size: 0.9rem;
-        }
-
-        .translation {
-            font-size: 1.15rem;
-            margin-bottom: 10px;
-            color: var(--accent-good);
-            font-weight: 600;
-        }
-
-        .section-title {
-            font-size: 0.75rem;
-            color: #ffb74d;
-            margin-top: 6px;
-            margin-bottom: 2px;
-            letter-spacing: 0.5px;
-            font-weight: bold;
-        }
-
-        .section-text {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            margin-bottom: 4px;
-            padding-left: 4px;
-            white-space: pre-line;
-            line-height: 1.4;
-        }
-
-        .example-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 4px;
-        }
-
-        .mic-btn {
-            background: #252525;
+        .action-btn {
+            background: transparent;
             border: 1px solid #444;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            color: var(--text-sub);
+            padding: 4px 10px;
+            border-radius: 15px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            outline: none;
-            flex-shrink: 0;
-        }
-        
-        .mic-btn svg { width: 14px; height: 14px; fill: #69f0ae; transition: fill 0.2s ease; }
-        .mic-btn.recording { border-color: var(--accent-again); animation: pulse 1.2s infinite; }
-        .mic-btn.recording svg { fill: var(--accent-again); }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(255, 82, 82, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
-        }
-
-        .example-block {
-            margin-top: 4px;
-            border-left: 2px solid #555;
-            padding-left: 10px;
-            width: 100%;
-        }
-
-        .example-en { font-size: 0.9rem; color: var(--text-main); line-height: 1.4; word-break: break-word; }
-        .example-ch { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; }
-
-        .speech-feedback-panel {
-            margin-top: 10px;
-            background-color: var(--score-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 14px;
-        }
-
-        .feedback-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .score-display { font-size: 1.15rem; font-weight: 700; color: var(--accent-hard); }
-        .score-display.perfect { color: var(--accent-easy); }
-        .score-display.danger { color: var(--accent-again); }
-        .feedback-label { font-size: 0.7rem; color: var(--text-sub); letter-spacing: 0.5px; }
-        .user-transcript-box { font-size: 0.85rem; line-height: 1.35; color: var(--text-main); margin-bottom: 4px; }
-
-        .word-correct { color: #69f0ae; margin-right: 4px; display: inline-block; }
-        .word-error { color: #ff5252; text-decoration: underline dashed #ff5252; margin-right: 4px; display: inline-block; }
-        .word-missed { color: #888888; text-decoration: line-through; margin-right: 4px; display: inline-block; }
-        .ai-commentary { font-size: 0.75rem; color: var(--text-sub); font-style: italic; border-top: 1px solid #2a2a2a; padding-top: 4px; margin-top: 4px; }
-
-        .controls {
-            margin-top: 4px;
-            display: flex;
-            gap: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            width: 100%;
-            max-width: 480px;
-            flex-shrink: 0;
-            padding-bottom: 8px;
-        }
-
-        .controls.visible { opacity: 1; pointer-events: auto; }
-
-        .btn {
-            flex: 1;
-            background: #222;
-            border: 1px solid var(--border-color);
-            padding: 10px 2px;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-main);
-            font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.7rem;
             transition: all 0.2s ease;
         }
+        .action-btn:hover { color: var(--text-main); border-color: var(--text-sub); }
 
-        .btn .num-tag { font-size: 0.65rem; opacity: 0.3; margin-top: 2px; }
+        /* 🔼 頂部 SRS 控制區 */
+        .controls { 
+            display: flex; 
+            gap: 8px; 
+            opacity: 0; 
+            visibility: hidden;
+            height: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1); 
+            width: 100%; 
+            max-width: 620px; 
+            flex-shrink: 0;
+        }
+        .controls.visible { 
+            opacity: 1; 
+            visibility: visible;
+            height: 46px;
+            transform: translateY(0);
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn { 
+            flex: 1; 
+            background: #222; 
+            border: 1px solid var(--border-color); 
+            padding: 6px 4px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--text-main); 
+            font-weight: 500; 
+            font-size: 0.85rem; 
+            transition: all 0.2s ease; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        @media (min-width: 768px) { .btn { padding: 10px; font-size: 0.95rem; } .controls.visible { height: 56px; } }
+        .btn .num-tag { font-size: 0.65rem; opacity: 0.4; margin-top: 2px; }
         .btn:hover { background: #2b2b2b; }
         .btn-again:hover { border-color: var(--accent-again); color: var(--accent-again); }
         .btn-hard:hover { border-color: var(--accent-hard); color: var(--accent-hard); }
         .btn-good:hover { border-color: var(--accent-good); color: var(--accent-good); }
         .btn-easy:hover { border-color: var(--accent-easy); color: var(--accent-easy); }
 
-        .message-screen { text-align: center; max-width: 100%; padding: 0 20px; margin-top: 80px; }
-        .message-screen h2 { font-size: 1.6rem; margin-bottom: 12px; font-weight: 600; }
-        .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
-        .hidden { display: none !important; }
-        
-        .file-upload-btn {
-            background: #222;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+        /* 卡片舞台大空間 */
+        .stage { 
+            perspective: 1000px; 
+            width: 100%; 
+            max-width: 620px; 
+            flex-grow: 1;
+            cursor: pointer; 
+            margin-top: 4px;
         }
-        .file-upload-btn:hover { border-color: var(--accent-good); color: var(--accent-good); }
+
+        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
+
+        .card-front { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
+        .card-front .word { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.5px; text-align: center; word-break: break-all; color: #ffffff; }
+        @media (min-width: 768px) { .card-front .word { font-size: 3.2rem; } }
+        .card-front .hint { position: absolute; bottom: 25px; font-size: 0.8rem; color: var(--text-sub); letter-spacing: 1px; }
+
+        .card-back { transform: rotateY(180deg); display: flex !important; flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; }
+        
+        .card-image-bg { 
+            width: 100% !important; 
+            height: 25%; 
+            min-height: 100px;
+            opacity: 1.0; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center; 
+            pointer-events: none; 
+            background-color: #0d0d0d; 
+            border-bottom: 1px solid var(--border-color); 
+            flex-shrink: 0; 
+        }
+        @media (min-width: 768px) { .card-image-bg { height: auto; aspect-ratio: 16 / 9 !important; } }
+
+        .card-back-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 18px; text-align: left; overflow-y: auto; }
+        .card-back-content::-webkit-scrollbar { width: 6px; }
+        .card-back-content::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+        .word-meta { display: flex; align-items: baseline; margin-bottom: 2px; flex-wrap: wrap; }
+        .word-title { font-size: 1.6rem; font-weight: 700; margin-right: 10px; color: #ffffff; }
+        @media (min-width: 768px) { .word-title { font-size: 2rem; } }
+        .word-type { font-style: italic; color: var(--text-sub); font-size: 0.9rem; }
+        .translation { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent-good); font-weight: 600; }
+
+        .section-title { font-size: 0.75rem; color: #ffb74d; margin-top: 6px; margin-bottom: 2px; letter-spacing: 0.5px; font-weight: bold; }
+        .section-text { font-size: 0.9rem; color: var(--text-main); margin-bottom: 4px; padding-left: 4px; white-space: pre-line; line-height: 1.4; }
+
+        .example-header { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+        .mic-btn { background: #252525; border: 1px solid #444; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; outline: none; }
+        .mic-btn svg { width: 14px; height: 14px; fill: #69f0ae; }
+        .mic-btn.recording { border-color: var(--accent-again); animation: pulse 1.2s infinite; }
+        .mic-btn.recording svg { fill: var(--accent-again); }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); } }
+
+        .example-block { margin-top: 4px; border-left: 2px solid #555; padding-left: 10px; width: 100%; }
+        .example-en { font-size: 0.9rem; color: var(--text-main); line-height: 1.4; word-break: break-word; }
+        .example-ch { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; }
+
+        .speech-feedback-panel { margin-top: 10px; background-color: var(--score-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; }
+        .feedback-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .score-display { font-size: 1.15rem; font-weight: 700; color: var(--accent-hard); }
+        .score-display.perfect { color: var(--accent-easy); }
+        .score-display.danger { color: var(--accent-again); }
+        .feedback-label { font-size: 0.7rem; color: var(--text-sub); letter-spacing: 0.5px; }
+        .user-transcript-box { font-size: 0.85rem; line-height: 1.4; color: var(--text-main); margin-bottom: 4px; }
+        .ai-commentary { font-size: 0.75rem; color: var(--text-sub); font-style: italic; border-top: 1px solid #2a2a2a; padding-top: 4px; margin-top: 4px; }
+
+        .message-screen { text-align: center; max-width: 450px; margin-top: 60px; padding: 20px; }
+        .message-screen h2 { font-size: 1.8rem; margin-bottom: 12px; font-weight: 600; }
+        .message-screen p { color: var(--text-sub); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
+        .file-upload-btn { background: #252525; border: 1px solid #444; color: var(--text-main); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-top-row">
-            <select class="course-select" id="course-selector" onchange="switchCourse(this.value)">
-                <option value="">⏳ 正在解構雲端總目錄...</option>
-            </select>
-            <button class="reset-storage-btn" onclick="clearProgressData()">重置本課記憶</button>
+    <div class="directory-zone">
+        <div class="dir-row">
+            <input type="text" id="directory-url-input" class="dir-input" placeholder="請貼上『課程總目錄』的 CSV 導出連結...">
+            <button class="dir-btn" onclick="fetchDirectoryCSV()">載入目錄</button>
         </div>
-        <div class="header-bottom-row" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div class="dir-row">
+            <span style="font-size:0.75rem; color:var(--text-sub); white-space:nowrap;">選擇當前課程：</span>
+            <select id="course-dropdown" class="course-select" onchange="handleCourseSwitch(this.value)">
+                <option value="internal_default">✨ 預設內建英文核心單字庫</option>
+            </select>
+        </div>
+    </div>
+
+    <header>
+        <div style="display: flex; align-items: center; flex-grow: 1;">
             <div class="progress-container">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
             <span class="counter" id="counter">0 / 0</span>
-            <span class="status-tag" id="engine-status">讀取中</span>
+        </div>
+        <div class="btn-group">
+            <button class="action-btn" onclick="exportCurrentCourseProgress()" title="導出當前課程進度 CSV">導出</button>
+            <button class="action-btn" onclick="clearCurrentCourseProgress()" style="color:#ff5252;" title="歸零當前課程進度">還原</button>
         </div>
     </header>
 
-    <div id="learning-stage">
-        <div class="stage" id="card-stage">
+    <div id="learning-stage" style="display: flex; flex-direction: column; align-items: center; width: 100%; height: calc(100vh - 150px); justify-content: flex-start;">
+        
+        <div class="controls" id="controls">
+            <button class="btn btn-again" onclick="handleSRS('again')">Again<span class="num-tag">①</span></button>
+            <button class="btn btn-hard" onclick="handleSRS('hard')">Hard<span class="num-tag">②</span></button>
+            <button class="btn btn-good" onclick="handleSRS('good')">Good<span class="num-tag">③</span></button>
+            <button class="btn btn-easy" onclick="handleSRS('easy')">Easy<span class="num-tag">④</span></button>
+        </div>
+
+        <div class="stage" id="card-stage" onclick="flipCard()">
             <div class="card" id="flashcard">
                 <div class="card-face card-front">
-                    <div class="word" id="front-word">等待選單初始化...</div>
+                    <div class="word" id="front-word">-</div>
                     <div class="hint">點擊卡片翻面</div>
                 </div>
                 <div class="card-face card-back">
                     <div class="card-image-bg" id="card-image"></div>
-                    <div class="card-back-content">
+                    <div class="card-back-content" onclick="event.stopPropagation();">
                         <div class="word-meta">
                             <span class="word-title" id="back-word">-</span>
                             <span class="word-type" id="back-type">-</span>
                         </div>
                         <div class="translation" id="back-translation">-</div>
                         
-                        <div class="section-title">【核心衍伸 / 結構解構】</div>
+                        <div class="section-title" id="label-inflection">【詞性變化】</div>
                         <div class="section-text" id="back-inflection">-</div>
                         
-                        <div class="section-title">【專業搭配詞 / 語境連結】</div>
+                        <div class="section-title" id="label-collocation">【搭配詞】</div>
                         <div class="section-text" id="back-collocation">-</div>
                         
                         <div class="example-header">
-                            <div class="section-title">【例句口說挑戰】</div>
+                            <div class="section-title" id="label-challenge">【例句口說挑戰】</div>
                             <button class="mic-btn" id="mic-button" title="開始口說辨識">
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
@@ -456,7 +326,7 @@
 
                         <div class="speech-feedback-panel hidden" id="feedback-panel">
                             <div class="feedback-top">
-                                <span class="feedback-label">AI 口說分析回饋</span>
+                                <span class="feedback-label">AI 分析回饋</span>
                                 <span class="score-display" id="score-text">0.0 / 10分</span>
                             </div>
                             <div class="user-transcript-box" id="visual-transcript"></div>
@@ -467,48 +337,36 @@
             </div>
         </div>
 
-        <div class="controls" id="controls">
-            <button class="btn btn-again" onclick="handleSRS('again')">Again<span class="num-tag">①</span></button>
-            <button class="btn btn-hard" onclick="handleSRS('hard')">Hard<span class="num-tag">②</span></button>
-            <button class="btn btn-good" onclick="handleSRS('good')">Good<span class="num-tag">③</span></button>
-            <button class="btn btn-easy" onclick="handleSRS('easy')">Easy<span class="num-tag">④</span></button>
-        </div>
     </div>
 
     <div id="completion-screen" class="message-screen hidden">
-        <h2>思維沉澱，當前試算表已破關</h2>
-        <p>此範疇之詞彙已悉數內化。點擊下方可重頭複習。</p>
+        <h2>思維沉澱，破關完成</h2>
+        <p>當前序列已順利完成內化。</p>
         <button class="file-upload-btn" onclick="resetEngine()">重頭學習</button>
     </div>
 
     <script>
-        // 💡 【核心重構】：填入你的「課程總目錄」試算表發布的 CSV 網址
-        const MASTER_INDEX_URL = "https://docs.google.com/spreadsheets/d/1Tz4x82TbVcB-H9rzbxf9-26HSI1cGN9iKpiRrT2kmZo/export?format=csv";
+        const DEFAULT_INTERNAL_DATABASE = [
+            { word: "ability", type: "n.", translation: "能力；才能", inflection: "able (adj.) 能夠的", collocation: "have the ability to 具有…的能力", example_en: "He has the ability to look deep into the truth.", example_ch: "他有深入洞察真相的能力。", historyCount: 0 },
+            { word: "appear", type: "v.", translation: "出現；顯露", inflection: "appearance (n.) 外貌；出現", collocation: "appear in public 公開露面", example_en: "A mysterious black box suddenly appeared in the room.", example_ch: "一個神祕的黑盒子突然出現在房間裡。", historyCount: 0 },
+            { word: "arrive", type: "v.", translation: "到達；抵達", inflection: "arrival (n.) 到達；抵達", collocation: "arrive at the airport 到達機場\narrive in London 到達倫敦", example_en: "We arrived at the hotel very late at night.", example_ch: "我們在深夜很晚才到達飯店。", historyCount: 0 },
+            { word: "beautiful", type: "adj.", translation: "美麗的", inflection: "beautify (v.) 美化", collocation: "a beautiful scene 美麗的畫面", example_en: "The 16-bit retro style has a beautiful view.", example_ch: "16-bit 復古風格有著美麗的景致。", historyCount: 0 },
+            { word: "correct", type: "adj.", translation: "正確的", inflection: "correction (n.) 修改；糾正", collocation: "correct answer 正確答案", example_en: "Please ensure the diagnostic data is correct.", example_ch: "請確保診斷數據是正確的。", historyCount: 0 },
+            { word: "define", type: "v.", translation: "定義；界定", inflection: "definition (n.) 定義", collocation: "define the rules 定義規則", example_en: "We must define the new protocols for the system.", example_ch: "我們必須為系統定義新的協定。", historyCount: 0 },
+            { word: "different", type: "adj.", translation: "不同的", inflection: "difference (n.) 差異；不同", collocation: "be different from 與…不同", example_en: "They hold two entirely different views.", example_ch: "他們持有兩種截然不同的觀點。", historyCount: 0 },
+            { word: "example", type: "n.", translation: "例子；典範", inflection: "exemplify (v.) 作為…的例子", collocation: "for example 例如", example_en: "This application is a classic example of vibe coding.", example_ch: "這個應用程式是 Vibe Coding 的經典範例。", historyCount: 0 }
+        ];
 
-        let COURSES_MAP = {}; // 儲存從總目錄解析出的 { 索引編號: CSV網址 }
+        let currentCourseKey = "internal_default";
         let originalCards = [];
         let queue = [];
         let currentCard = null;
         let isFlipped = false;
-        let currentCourseKey = "";
+        let currentLangMode = "en-US"; // 自動感知偵測： en-US 或 zh-TW
         
         const synth = window.speechSynthesis;
         let recognition = null;
         let isRecording = false;
-
-        try {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = 'en-US';
-                recognition.onstart = () => { isRecording = true; document.getElementById('mic-button').classList.add('recording'); };
-                recognition.onend = () => { isRecording = false; document.getElementById('mic-button').classList.remove('recording'); };
-                recognition.onresult = (event) => { evaluateSpeech(event.results[0][0].transcript); };
-                recognition.onerror = () => { isRecording = false; document.getElementById('mic-button').classList.remove('recording'); };
-            }
-        } catch (e) { console.error(e); }
 
         const learningStage = document.getElementById('learning-stage');
         const completionScreen = document.getElementById('completion-screen');
@@ -516,347 +374,341 @@
         const controls = document.getElementById('controls');
         const progressBar = document.getElementById('progress-bar');
         const counter = document.getElementById('counter');
-        const statusTag = document.getElementById('engine-status');
 
-        document.getElementById('card-stage').addEventListener('click', (e) => {
-            if (e.target.closest('#mic-button')) return;
-            flipCard();
-        });
-
-        document.getElementById('mic-button').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (!recognition) { alert("此環境暫不支援語音功能。"); return; }
-            if (isRecording) { recognition.stop(); } 
-            else { try { synth.cancel(); recognition.start(); } catch(err) {} }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (queue.length === 0) return;
-            if (e.code === 'Space') { e.preventDefault(); flipCard(); } 
-            else if (isFlipped && !isRecording) {
-                if (e.key === '1') handleSRS('again');
-                if (e.key === '2') handleSRS('hard');
-                if (e.key === '3') handleSRS('good');
-                if (e.key === '4') handleSRS('easy');
+        window.addEventListener('DOMContentLoaded', () => { 
+            // 讀取先前暫存的總目錄網址
+            const savedDirUrl = localStorage.getItem('observer_directory_url');
+            if(savedDirUrl) {
+                document.getElementById('directory-url-input').value = savedDirUrl;
+                fetchDirectoryCSV(true); // 靜默加載
+            } else {
+                initEngineWithCache(); 
             }
+
+            document.getElementById('mic-button').addEventListener('click', (e) => { e.stopPropagation(); toggleRecording(); });
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+                if (isFlipped && !isRecording) {
+                    if (e.key === '1') handleSRS('again');
+                    if (e.key === '2') handleSRS('hard');
+                    if (e.key === '3') handleSRS('good');
+                    if (e.key === '4') handleSRS('easy');
+                }
+            });
         });
 
-        // 啟動點：先抓總目錄，再加載課程
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchMasterIndex();
-        });
-
-        // 1. 抓取總目錄試算表並動態渲染下拉選單
-        function fetchMasterIndex() {
-            statusTag.textContent = "解構選單...";
-            fetch(MASTER_INDEX_URL)
-                .then(res => {
-                    if(!res.ok) throw new Error("總目錄讀取失敗");
-                    return res.text();
-                })
-                .then(csvText => {
-                    const rows = csvToObjects(csvText);
-                    const selector = document.getElementById('course-selector');
-                    selector.innerHTML = ''; // 清空加載字樣
-
-                    if(rows.length === 0) {
-                        selector.innerHTML = '<option>⚠️ 總目錄無資料</option>';
-                        return;
-                    }
-
-                    COURSES_MAP = {};
-                    rows.forEach((row, index) => {
-                        if(row.course_name && row.csv_url) {
-                            const key = `course_${index}`;
-                            COURSES_MAP[key] = row.csv_url.trim();
-
-                            const opt = document.createElement('option');
-                            opt.value = key;
-                            opt.textContent = row.course_name.trim();
-                            selector.appendChild(opt);
-                        }
-                    });
-
-                    // 讀取上次離開時的課程紀錄
-                    const savedKey = localStorage.getItem('observer_current_sheet_key');
-                    if (savedKey && COURSES_MAP[savedKey]) {
-                        currentCourseKey = savedKey;
-                        selector.value = savedKey;
-                    } else {
-                        currentCourseKey = Object.keys(COURSES_MAP)[0];
-                    }
-
-                    loadCourseData(currentCourseKey);
-                })
-                .catch(err => {
-                    console.error(err);
-                    statusTag.textContent = "配置出錯";
-                    document.getElementById('front-word').textContent = "無法載入總目錄，請確認 MASTER_INDEX_URL 是否配置正確";
-                });
-        }
-
-        function switchCourse(courseKey) {
-            if(!courseKey || !COURSES_MAP[courseKey]) return;
-            synth.cancel();
-            if (isRecording && recognition) recognition.stop();
+        // 🌐 獲取課程總目錄
+        function fetchDirectoryCSV(isSilent = false) {
+            const url = document.getElementById('directory-url-input').value.trim();
+            if(!url) { if(!isSilent) alert("請輸入有效的總目錄 CSV 連結！"); return; }
             
-            currentCourseKey = courseKey;
-            localStorage.setItem('observer_current_sheet_key', courseKey);
-            loadCourseData(courseKey);
-        }
+            localStorage.setItem('observer_directory_url', url);
 
-        // 2. 依據選單切換結果，動態二級抓取特定的課程字卡
-        function loadCourseData(courseKey) {
-            const targetUrl = COURSES_MAP[courseKey];
-            if(!targetUrl) return;
-
-            statusTag.textContent = "讀取課程...";
-            statusTag.style.color = "#ffd740";
-
-            fetch(targetUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("無法下載此課程內容");
-                    return response.text();
-                })
-                .then(csvText => {
-                    originalCards = csvToObjects(csvText);
+            fetch(url)
+                .then(res => res.text())
+                .then(text => {
+                    const lines = text.replace(/\r/g, '').split('\n');
+                    const dropdown = document.getElementById('course-dropdown');
                     
-                    if(originalCards.length === 0) throw new Error("課程內容為空");
-
-                    // 記憶排程隔離：以網址雜湊作為各自獨立的記憶鎖
-                    const urlHash = btoa(targetUrl).substring(0, 16);
-                    const cacheKey = `observer_srs_queue_sheet_${urlHash}`;
-                    const cachedQueue = localStorage.getItem(cacheKey);
-
-                    if (cachedQueue) {
-                        queue = JSON.parse(cachedQueue);
-                        queue = queue.filter(qCard => originalCards.some(oCard => oCard.word === qCard.word));
-                        if(queue.length === 0) queue = [...originalCards];
-                    } else {
-                        queue = [...originalCards];
+                    // 清空除了內建之外的選項
+                    dropdown.innerHTML = '<option value="internal_default">✨ 預設內建英文核心單字庫</option>';
+                    
+                    let loadedCount = 0;
+                    for(let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim(); if(!line) continue;
+                        const parts = parseCSVLine(line);
+                        if(parts.length >= 2) {
+                            const option = document.createElement('option');
+                            option.value = parts[1].trim(); // csv_url
+                            option.textContent = parts[0].trim(); // course_name
+                            dropdown.appendChild(option);
+                            loadedCount++;
+                        }
+                    }
+                    
+                    // 恢復先前選中的課程
+                    const lastCourse = localStorage.getItem('observer_last_course_key');
+                    if(lastCourse && dropdown.querySelector(`option[value="${lastCourse}"]`)) {
+                        dropdown.value = lastCourse;
+                        currentCourseKey = lastCourse;
                     }
 
-                    statusTag.textContent = "雲端已同步";
-                    statusTag.style.color = "#69f0ae";
-
-                    if (queue.length === 0) {
-                        showCompletion();
-                    } else {
-                        learningStage.style.display = 'flex';
-                        completionScreen.classList.add('hidden');
-                        updateProgress();
-                        showNextCard();
-                    }
+                    if(!isSilent) alert(`🎯 總目錄同步成功！共載入 ${loadedCount} 門外部雲端課程。`);
+                    initEngineWithCache();
                 })
                 .catch(err => {
                     console.error(err);
-                    statusTag.textContent = "加載失敗";
-                    statusTag.style.color = "#ff5252";
-                    document.getElementById('front-word').textContent = "此課程連線失敗，請檢查該子試算表發布狀態";
+                    if(!isSilent) alert("讀取總目錄失敗，請確認該 Google 試算表已開啟『知道連結的所有人填寫/檢視』並發佈為 CSV。");
+                    initEngineWithCache();
                 });
         }
 
-        // CSV 自建剖析轉物件函數 (維持原封不動的高安全隔離)
-        function csvToObjects(csv) {
-            const lines = csv.split(/\r?\n/).filter(line => line.trim() !== "");
-            if (lines.length < 2) return [];
-            const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
-            const result = [];
-            for (let i = 1; i < lines.length; i++) {
-                const values = parseCSVLine(lines[i]);
-                if (values.length === 0) continue;
-                const obj = {};
-                headers.forEach((header, index) => {
-                    obj[header] = values[index] ? values[index].trim() : "";
-                });
-                result.push(obj);
-            }
-            return result;
+        // 切換課程
+        function handleCourseSwitch(value) {
+            currentCourseKey = value;
+            localStorage.setItem('observer_last_course_key', value);
+            initEngineWithCache();
         }
 
-        function parseCSVLine(line) {
-            const arr = []; let quote = false; let col = "";
-            for (let c = 0; c < line.length; c++) {
-                let char = line[c];
-                if (char === '"') {
-                    if (quote && line[c+1] === '"') { col += '"'; c++; }
-                    else { quote = !quote; }
-                } else if (char === ',' && !quote) { arr.push(col); col = ""; } 
-                else { col += char; }
+        // 初始化當前精選課的核心引擎
+        function initEngineWithCache() {
+            if(currentCourseKey === "internal_default") {
+                loadCardsData(DEFAULT_INTERNAL_DATABASE, "internal_default");
+            } else {
+                // 從網路拉取該課程 CSV
+                fetch(currentCourseKey)
+                    .then(res => res.text())
+                    .then(text => {
+                        const cards = parseCourseCSV(text);
+                        if(cards.length === 0) {
+                            alert("該課程解析出 0 條資料，切回預設字庫。");
+                            handleCourseSwitch("internal_default");
+                            return;
+                        }
+                        loadCardsData(cards, currentCourseKey);
+                    })
+                    .catch(err => {
+                        alert("遠端課程內容讀取失敗，為你載入本機快取或預設內容。");
+                        loadCardsData(DEFAULT_INTERNAL_DATABASE, "internal_default");
+                    });
             }
-            arr.push(col); return arr;
+        }
+
+        function loadCardsData(baseCards, storageSuffix) {
+            const cacheKey_queue = `srs_queue_${btoa(storageSuffix).substring(0,20)}`;
+            const cacheKey_orig = `srs_orig_${btoa(storageSuffix).substring(0,20)}`;
+            
+            const cachedQueue = localStorage.getItem(cacheKey_queue);
+            const cachedOriginal = localStorage.getItem(cacheKey_orig);
+            
+            if (cachedQueue && cachedOriginal) {
+                queue = JSON.parse(cachedQueue);
+                originalCards = JSON.parse(cachedOriginal);
+            } else {
+                originalCards = JSON.parse(JSON.stringify(baseCards));
+                queue = [...originalCards];
+            }
+            
+            if (queue.length === 0) { showCompletion(); } 
+            else {
+                learningStage.classList.remove('hidden');
+                completionScreen.classList.add('hidden');
+                updateProgress();
+                showNextCard();
+            }
+        }
+
+        // 🧠 自動感知與優雅換標籤機制
+        function detectLanguageAndAdjustUI(card) {
+            // 偵測 example_en 欄位是否包含大量中文
+            const chineseRegex = /[\u4e00-\u9fa5]/;
+            if (chineseRegex.test(card.example_en) || chineseRegex.test(card.word)) {
+                currentLangMode = "zh-TW";
+                document.getElementById('label-inflection').textContent = "【出處 / 背景】";
+                document.getElementById('label-collocation').textContent = "【核心寓意】";
+                document.getElementById('label-challenge').textContent = "【故事與現代啟示口說挑戰】";
+            } else {
+                currentLangMode = "en-US";
+                document.getElementById('label-inflection').textContent = "【詞性變化】";
+                document.getElementById('label-collocation').textContent = "【搭配詞】";
+                document.getElementById('label-challenge').textContent = "【例句口說挑戰】";
+            }
+            
+            // 初始化語音辨識語系
+            if(recognition) { recognition.lang = currentLangMode; }
         }
 
         function showNextCard() {
             if (queue.length === 0) { showCompletion(); return; }
-            isFlipped = false;
-            flashcard.classList.remove('flipped');
-            controls.classList.remove('visible');
+            isFlipped = false; flashcard.classList.remove('flipped'); controls.classList.remove('visible');
             document.getElementById('feedback-panel').classList.add('hidden');
 
             currentCard = queue[0];
+            
+            // 自動偵測並優雅切換標籤與語系
+            detectLanguageAndAdjustUI(currentCard);
+
             document.getElementById('front-word').textContent = currentCard.word;
             document.getElementById('back-word').textContent = currentCard.word;
             document.getElementById('back-type').textContent = currentCard.type || '';
-            document.getElementById('back-translation').textContent = currentCard.translation || '';
-            document.getElementById('back-inflection').textContent = currentCard.inflection || '無';
-            document.getElementById('back-collocation').textContent = currentCard.collocation || '無';
-            document.getElementById('back-example-en').textContent = currentCard.example_en || '';
+            document.getElementById('back-translation').textContent = currentCard.translation;
+            document.getElementById('back-inflection').textContent = currentCard.inflection;
+            document.getElementById('back-collocation').textContent = currentCard.collocation;
+            document.getElementById('back-example-en').textContent = currentCard.example_en;
             document.getElementById('back-example-ch').textContent = currentCard.example_ch || '';
 
             document.querySelector('.card-back-content').scrollTop = 0;
             updateCardImage(currentCard.word);
-            if (queue[1]) preloadImage(queue[1].word);
         }
 
         function flipCard() {
             if (isFlipped || !currentCard) return;
-            isFlipped = true;
-            flashcard.classList.add('flipped');
-            controls.classList.add('visible');
+            isFlipped = true; flashcard.classList.add('flipped'); controls.classList.add('visible');
             speakCard();
         }
 
         function speakCard() {
-            if(!currentCard.word) return;
-            synth.cancel();
-            const utterWord1 = new SpeechSynthesisUtterance(currentCard.word);
-            utterWord1.lang = 'en-US'; utterWord1.rate = 0.9;
-            const utterWord2 = new SpeechSynthesisUtterance(currentCard.word);
-            utterWord2.lang = 'en-US'; utterWord2.rate = 0.82;
-            synth.speak(utterWord1); synth.speak(utterWord2);
-            if(currentCard.example_en) {
-                const utterExample = new SpeechSynthesisUtterance(currentCard.example_en);
-                utterExample.lang = 'en-US'; utterExample.rate = 0.95;
+            try {
+                synth.cancel(); 
+                const utterWord = new SpeechSynthesisUtterance(currentCard.word); 
+                utterWord.lang = currentLangMode; 
+                utterWord.rate = currentLangMode === "zh-TW" ? 1.0 : 0.9;
+
+                const utterExample = new SpeechSynthesisUtterance(currentCard.example_en); 
+                utterExample.lang = currentLangMode; 
+                utterExample.rate = currentLangMode === "zh-TW" ? 1.0 : 0.95;
+
+                synth.speak(utterWord); 
                 synth.speak(utterExample);
-            }
+            } catch(e) { console.log("TTS中斷"); }
         }
 
         function handleSRS(level) {
             if (!isFlipped || isRecording) return;
-            const card = queue.shift();
+            const card = queue.shift(); 
 
-            if (level === 'again') {
-                queue.splice(1, 0, card);
-            } else if (level === 'hard') {
-                const index = Math.max(2, Math.floor(queue.length / 3));
-                queue.splice(index, 0, card);
-            } else if (level === 'good') {
-                const index = Math.max(1, Math.floor(queue.length * 0.8));
-                queue.splice(index, 0, card);
+            if (level === 'again') { card.historyCount = (card.historyCount || 0) + 1; queue.splice(1, 0, card); } 
+            else if (level === 'hard') { card.historyCount = (card.historyCount || 0) + 0.5; const idx = Math.max(2, Math.floor(queue.length / 3)); queue.splice(idx, 0, card); } 
+            else if (level === 'good') { card.historyCount = (card.historyCount || 0) - 0.2; const idx = Math.max(1, Math.floor(queue.length * 0.8)); queue.splice(idx, 0, card); } 
+            else if (level === 'easy') {
+                const master = originalCards.find(c => c.word === card.word);
+                if(master) master.historyCount = 99; 
             }
 
-            const targetUrl = COURSES_MAP[currentCourseKey];
-            const urlHash = btoa(targetUrl).substring(0, 16);
-            const cacheKey = `observer_srs_queue_sheet_${urlHash}`;
-            localStorage.setItem(cacheKey, JSON.stringify(queue));
+            const suffix = btoa(currentCourseKey).substring(0,20);
+            localStorage.setItem(`srs_queue_${suffix}`, JSON.stringify(queue));
+            localStorage.setItem(`srs_orig_${suffix}`, JSON.stringify(originalCards));
+
             updateProgress();
             showNextCard();
+        }
+
+        function toggleRecording() {
+            if (!recognition) { alert("此裝置或瀏覽器不支援語音辨識。"); return; }
+            if (isRecording) { recognition.stop(); } else { recognition.start(); }
+        }
+
+        function evaluateSpeech(userText) {
+            // 根據中英文採取不同的斷句拆解比對演算法
+            const cleanText = (str) => {
+                if(currentLangMode === "zh-TW") {
+                    return str.replace(/[，。？、！『』「」🛠️🎯📖🔄🎙️📝\s]/g, "").split("");
+                } else {
+                    return str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").split(/\s+/).filter(Boolean);
+                }
+            };
+
+            const targetWords = cleanText(currentCard.example_en); 
+            const userWords = cleanText(userText);
+            
+            let score = 10.0; 
+            const perWordValue = targetWords.length > 0 ? (10.0 / targetWords.length) : 10;
+            const feedbackContainer = document.getElementById('visual-transcript'); 
+            feedbackContainer.innerHTML = '';
+            
+            let htmlOutput = []; 
+            let userIdx = 0;
+
+            for (let i = 0; i < targetWords.length; i++) {
+                const target = targetWords[i]; 
+                const user = userWords[userIdx];
+                if (!user) { htmlOutput.push(`<span style="color:#ff5252; opacity:0.6;">${target}</span>`); score -= perWordValue; continue; }
+                if (target === user) { htmlOutput.push(`<span style="color:#69f0ae;">${target}</span>`); userIdx++; } 
+                else {
+                    htmlOutput.push(`<span style="color:#ff5252;" title="預期: ${target}">${user}</span>`); 
+                    score -= perWordValue;
+                    userIdx++;
+                }
+            }
+
+            score = Math.max(0, Math.min(10, score));
+            const scoreTextEl = document.getElementById('score-text'); 
+            const aiCommentEl = document.getElementById('ai-comment');
+            
+            if (score >= 8.5) { scoreTextEl.className = "score-display perfect"; aiCommentEl.textContent = "內化程度極高！複述極為精準。"; } 
+            else if (score >= 6.0) { scoreTextEl.className = "score-display"; aiCommentEl.textContent = "大致通順，部分細節核心字漏失。"; } 
+            else { scoreTextEl.className = "score-display danger"; aiCommentEl.textContent = "偏離幅度較大，建議再次閱讀故事。"; }
+
+            document.getElementById('score-text').textContent = `${score.toFixed(1)} / 10分`;
+            feedbackContainer.innerHTML = htmlOutput.join(currentLangMode === "zh-TW" ? "" : " "); 
+            document.getElementById('feedback-panel').classList.remove('hidden');
+            
+            setTimeout(() => {
+                const scrollBox = document.querySelector('.card-back-content');
+                scrollBox.scrollTop = scrollBox.scrollHeight;
+            }, 50);
+        }
+
+        // CSV 解析工具
+        function parseCourseCSV(text) {
+            const lines = text.replace(/\r/g, '').split('\n');
+            let importedData = [];
+            for (let i = 1; i < lines.length; i++) {
+                let line = lines[i].trim(); if (!line) continue;
+                let row = parseCSVLine(line);
+                if (row.length >= 6) {
+                    importedData.push({
+                        word: row[0], type: row[1] || '', translation: row[2], inflection: row[3] ? row[3].replace(/\\n/g, '\n') : '',
+                        collocation: row[4] ? row[4].replace(/\\n/g, '\n') : '', example_en: row[5], example_ch: row[6] || '',
+                        historyCount: row[7] ? parseFloat(row[7]) : 0
+                    });
+                }
+            }
+            return importedData;
+        }
+
+        function parseCSVLine(line) {
+            let row = [], inQuotes = false, currentField = '';
+            for (let j = 0; j < line.length; j++) {
+                let char = line[j];
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { row.push(currentField.trim()); currentField = ''; }
+                else currentField += char;
+            }
+            row.push(currentField.trim());
+            return row.map(v => v.startsWith('"') && v.endsWith('"') ? v.slice(1, -1).replace(/""/g, '"') : v);
         }
 
         function updateProgress() {
             const total = originalCards.length;
             const currentLeft = queue.length;
-            const done = total - currentLeft;
-            progressBar.style.width = `${total > 0 ? (done / total) * 100 : 0}%`;
+            progressBar.style.width = `${total > 0 ? ((total - currentLeft) / total) * 100 : 0}%`;
             counter.textContent = `${currentLeft} / ${total}`;
         }
 
-        function showCompletion() {
-            learningStage.style.display = 'none';
-            completionScreen.classList.remove('hidden');
-            const targetUrl = COURSES_MAP[currentCourseKey];
-            const urlHash = btoa(targetUrl).substring(0, 16);
-            localStorage.removeItem(`observer_srs_queue_sheet_${urlHash}`);
+        function showCompletion() { learningStage.classList.add('hidden'); completionScreen.classList.remove('hidden'); }
+        
+        function resetEngine() { 
+            queue = originalCards.map(c => { if(c.historyCount == 99) c.historyCount = 0; return c; });
+            const suffix = btoa(currentCourseKey).substring(0,20);
+            localStorage.setItem(`srs_queue_${suffix}`, JSON.stringify(queue));
+            initEngineWithCache();
         }
 
-        function resetEngine() {
-            queue = [...originalCards];
-            const targetUrl = COURSES_MAP[currentCourseKey];
-            const urlHash = btoa(targetUrl).substring(0, 16);
-            localStorage.setItem(`observer_srs_queue_sheet_${urlHash}`, JSON.stringify(queue));
-            completionScreen.classList.add('hidden');
-            learningStage.style.display = 'flex';
-            updateProgress();
-            showNextCard();
+        function clearCurrentCourseProgress() { 
+            if(confirm("確定歸零清除當前課程的記憶進度？")) { 
+                const suffix = btoa(currentCourseKey).substring(0,20);
+                localStorage.removeItem(`srs_queue_${suffix}`); 
+                localStorage.removeItem(`srs_orig_${suffix}`); 
+                initEngineWithCache(); 
+            } 
         }
 
-        function clearProgressData() {
-            if(!currentCourseKey) return;
-            if(confirm("確定要將當前課程的記憶排程全部歸零重置嗎？")) {
-                const targetUrl = COURSES_MAP[currentCourseKey];
-                const urlHash = btoa(targetUrl).substring(0, 16);
-                localStorage.removeItem(`observer_srs_queue_sheet_${urlHash}`);
-                loadCourseData(currentCourseKey);
-            }
+        function exportCurrentCourseProgress() {
+            let csvContent = "\uFEFFword,type,translation,inflection,collocation,example_en,example_ch,historyCount\n";
+            originalCards.forEach(c => {
+                let row = [c.word, c.type, c.translation, c.inflection.replace(/\n/g, '\\n'), c.collocation.replace(/\n/g, '\\n'), c.example_en, c.example_ch, c.historyCount || 0];
+                let escapedRow = row.map(v => `"${String(v).replace(/"/g, '""')}"`);
+                csvContent += escapedRow.join(",") + "\n";
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `progress_export_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
-
-        function evaluateSpeech(userText) {
-            if(!currentCard.example_en) return;
-            const cleanText = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").split(/\s+/).filter(Boolean);
-            const targetWords = cleanText(currentCard.example_en);
-            const userWords = cleanText(userText);
-            let score = 10.0; const perWordValue = 10.0 / targetWords.length;
-            const feedbackContainer = document.getElementById('visual-transcript');
-            feedbackContainer.innerHTML = '';
-            
-            let isSemanticInverted = false;
-            const negativeParticles = ['no', 'not', 'dont', 'doesnt', 'didnt', 'cant', 'wont', 'never'];
-            if (targetWords.some(w => negativeParticles.includes(w)) !== userWords.some(w => negativeParticles.includes(w))) isSemanticInverted = true;
-            
-            let htmlOutput = []; let userIdx = 0;
-            for (let i = 0; i < targetWords.length; i++) {
-                const target = targetWords[i]; const user = userWords[userIdx];
-                if (!user) { htmlOutput.push(`<span class="word-missed">${target}</span>`); score -= perWordValue; continue; }
-                if (target === user) { htmlOutput.push(`<span class="word-correct">${target}</span>`); userIdx++; } 
-                else {
-                    const diffRatio = levenshteinDistance(target, user) / Math.max(target.length, user.length);
-                    if (diffRatio <= 0.35) { htmlOutput.push(`<span class="word-correct" style="color:#ffd740; text-decoration: underline dotted;">${user}</span>`); score -= (perWordValue * 0.5); } 
-                    else { htmlOutput.push(`<span class="word-error" title="預期: ${target}">${user}</span>`); score -= perWordValue; }
-                    userIdx++;
-                }
-            }
-            while(userIdx < userWords.length) { htmlOutput.push(`<span class="word-error" style="opacity: 0.6;" title="贅字">${userWords[userIdx]}</span>`); score -= (perWordValue * 0.3); userIdx++; }
-            
-            if (isSemanticInverted) { 
-                score -= 3.5; 
-                document.getElementById('score-text').className = "score-display danger"; 
-                document.getElementById('ai-comment').innerHTML = "⚠️ <span style='color:#ff5252; font-weight:bold;'>語意反轉失誤！</span>"; 
-            } else {
-                score = Math.max(0, Math.min(10, score));
-                const scoreTextEl = document.getElementById('score-text'); const aiCommentEl = document.getElementById('ai-comment');
-                if (score >= 9.0) { scoreTextEl.className = "score-display perfect"; aiCommentEl.textContent = "Excellent! 發音極其清晰。"; } 
-                else if (score >= 7.5) { scoreTextEl.className = "score-display"; aiCommentEl.textContent = "Good job! 帶有些微口音，不影響溝通。"; } 
-                else { scoreTextEl.className = "score-display danger"; aiCommentEl.textContent = "關鍵字偏離，可能造成誤解。"; }
-            }
-            document.getElementById('score-text').textContent = `${score.toFixed(1)} / 10分`;
-            feedbackContainer.innerHTML = htmlOutput.join('');
-            document.getElementById('feedback-panel').classList.remove('hidden');
-            
-            setTimeout(() => {
-                const contentArea = document.querySelector('.card-back-content');
-                contentArea.scrollTo({ top: contentArea.scrollHeight, behavior: 'smooth' });
-            }, 100);
-        }
-
-        function levenshteinDistance(s1, s2) {
-            const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null));
-            for (let i = 0; i <= s1.length; i += 1) track[0][i] = i; for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
-            for (let j = 1; j <= s2.length; j += 1) { for (let i = 1; i <= s1.length; i += 1) { const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1; track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator); } }
-            return track[s2.length][s1.length];
-        }
-
-        function updateCardImage(word) {
-            if(!word) return;
-            const localSrc = `./${word.toLowerCase().replace(/\s+/g, '_')}.jpg`;
-            document.getElementById('card-image').style.backgroundImage = `url('${localSrc}')`;
-        }
-
-        function preloadImage(word) {
-            if(!word) return;
-            const img = new Image();
-            img.src = `./${word.toLowerCase().replace(/\s+/g, '_')}.jpg`;
-        }
+        
+        function updateCardImage(word) { document.getElementById('card-image').style.backgroundImage = `url('./${word.toLowerCase()}.jpg')`; }
     </script>
 </body>
 </html>
